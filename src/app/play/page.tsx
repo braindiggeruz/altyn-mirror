@@ -11,6 +11,7 @@ import type { AnswerPathEntry } from '@/lib/scoring';
 import { scoreAnswers } from '@/lib/scoring';
 import { getStoredLang } from '@/lib/lang';
 import { track } from '@/lib/tracking';
+import { notify } from '@/lib/notify';
 import { loadSession, saveSession, makeSessionId } from '@/lib/storage';
 import type { SessionData } from '@/lib/storage';
 import { newToken } from '@/lib/token';
@@ -18,6 +19,7 @@ import { ProgressRing } from '@/components/ProgressRing';
 import { LiveMapPreview } from '@/components/LiveMapPreview';
 import { MirrorIntro } from '@/components/MirrorIntro';
 import { MapAssembled } from '@/components/MapAssembled';
+import { RESULTS } from '@/lib/results';
 
 type Phase = 'intro' | 'scene' | 'assembled';
 
@@ -43,6 +45,20 @@ export default function PlayPage() {
 
   function goToScene() {
     setPhase('scene');
+    // V6 — notify the leads group once per session that the map has started.
+    // Ensure session id exists so throttling can pin to it.
+    let existing = loadSession();
+    if (!existing) {
+      existing = {
+        session_id: makeSessionId(),
+        lang,
+        answer_path: [],
+        created_at: new Date().toISOString(),
+        token: newToken(),
+      };
+      saveSession(existing);
+    }
+    notify('quiz_started', { page: '/play' });
   }
 
   function selectOption(optionId: string, resultKey: ResultKey) {
@@ -94,6 +110,18 @@ export default function PlayPage() {
       created_at: existing?.created_at || new Date().toISOString(),
     };
     saveSession(session);
+
+    // V6 — notify leads group that the map is complete (also fired on
+    // /result mount as a safety net; both throttled to once per session).
+    const primaryData = RESULTS[primary];
+    const secondaryData = secondary && secondary !== primary ? RESULTS[secondary] : null;
+    notify('quiz_completed', {
+      scenario: pick(primaryData.title, lang),
+      secondary: secondaryData ? pick(secondaryData.title, lang) : '',
+      key_question: pick(primaryData.keyQuestion, lang),
+      token_short: token.replace(/^am_/, '').slice(0, 10),
+      page: '/play',
+    });
 
     // V4: ~900ms cinematic beat (prefers-reduced-motion shortens inside MapAssembled).
     setPhase('assembled');

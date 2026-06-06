@@ -33,8 +33,8 @@ export const ui = {
 
   returningChip: {
     text: {
-      ru: 'Карта № {token} собрана — продолжить в Telegram →',
-      uz: 'Xarita № {token} yig‘ilgan — Telegram’da davom etish →',
+      ru: 'Карта № {token} собрана — написать Алтын →',
+      uz: 'Xarita № {token} yig‘ilgan — Altyn’ga yozish →',
     },
   },
 
@@ -142,8 +142,47 @@ export const ui = {
       uz: 'Shaxsiy onlayn tahlilni boshlash mumkin bo‘lgan uchta savol.',
     },
     prepCta: {
-      ru: 'Забрать эти вопросы в Telegram →',
-      uz: 'Bu savollarni Telegram’ga olib o‘tish →',
+      ru: 'Отправить вопросы Алтын →',
+      uz: 'Savollarni Altyn’ga yuborish →',
+    },
+
+    // V6 — “Что уже видно по карте”
+    whatsVisibleTitle: { ru: 'Что уже видно по карте', uz: 'Xaritada nimalar ko‘rinmoqda' },
+    whatsVisibleIntro: {
+      ru: 'По вашим ответам карта показывает:',
+      uz: 'Javoblaringizga ko‘ra xarita quyidagilarni ko‘rsatadi:',
+    },
+
+    // V6 — “Где проверить факты”
+    factsTitle: { ru: 'Где проверить факты', uz: 'Faktlarni qayerda tekshirish kerak' },
+    factsIntro: {
+      ru: 'Перед разбором полезно выписать не всю историю, а три короткие строки:',
+      uz: 'Tahlildan oldin butun hikoyani emas, uchta qisqa qator yozish foydali:',
+    },
+    factsItems: {
+      ru: [
+        'Что точно произошло?',
+        'Что вы предполагаете?',
+        'Какой вопрос повторяется внутри?',
+      ],
+      uz: [
+        'Aniq nima sodir bo‘ldi?',
+        'Nimani taxmin qilyapsiz?',
+        'Ichingizda qaysi savol takrorlanadi?',
+      ],
+    },
+
+    // V6 — “Что лучше не делать сразу после карты”
+    dontDoTitle: { ru: 'Что лучше не делать сразу после карты', uz: 'Xaritadan keyin darhol qilmaslik kerak' },
+    dontDoBody: {
+      ru: 'Не принимайте резких решений только из результата. Карта — это не ярлык, а способ спокойно увидеть динамику. Если откликнулось, лучше взять один эпизод и разложить его на личном онлайн-разборе.',
+      uz: 'Faqat natija asosida keskin qarorlar qabul qilmang. Xarita — bu yorliq emas, bu dinamikani xotirjam ko‘rish usuli. Agar aks-sado bersa, bitta lahzani olib, uni shaxsiy onlayn tahlilda ko‘rib chiqish yaxshi.',
+    },
+
+    // V6 — Continuation copy that points at Алтын directly
+    continueWithAltyn: {
+      ru: 'Если хотите понять, где именно этот сценарий повторился в вашей истории, карта может продолжиться с Алтын в Telegram.',
+      uz: 'Bu stsenariy sizning hikoyangizda aynan qayerda takrorlanganini tushunmoqchi bo‘lsangiz, xarita Telegram’da Altyn bilan davom etishi mumkin.',
     },
 
     // V5 — First calm step (separate block)
@@ -198,14 +237,22 @@ export const ui = {
       uz: 'Telegram’da qaytadan boshlamaysiz — xarita shu yerdan davom etadi.',
     },
 
+    // V6 — Personalized offer extras
+    personalizedOfferNoRetest: {
+      ru: 'На разборе вы не будете проходить тест заново. Вы начнёте с уже собранной карты.',
+      uz: 'Tahlilda testni qayta o‘tmaysiz. Allaqachon yig‘ilgan xaritadan boshlaysiz.',
+    },
+
     save:        { ru: 'Сохранить карту', uz: 'Xaritani saqlash' },
     saving:      { ru: 'Собираем карту…',                  uz: 'Xarita yig‘ilmoqda…' },
     saved:       { ru: 'Карта сохранена в загрузки',       uz: 'Xarita yuklab olinganlarga saqlandi' },
     saveFail:    { ru: 'Не получилось сохранить — сделайте скриншот карты', uz: 'Saqlab bo‘lmadi — xarita skrinshotini oling' },
     retake:      { ru: 'Пройти заново', uz: 'Qayta o‘tish' },
 
-    primaryCta: { ru: 'Продолжить карту в Telegram →', uz: 'Telegram’da xaritani davom ettirish →' },
-    stickyCta:  { ru: 'Продолжить в Telegram →', uz: 'Telegram’da davom etish →' },
+    // V6 — Primary CTA points at Алтын directly. Secondary keeps bot path alive.
+    primaryCta:       { ru: 'Написать Алтын по моей карте →', uz: 'Xaritam bo‘yicha Altyn’ga yozish →' },
+    secondaryBotCta:  { ru: 'Получить карту в Telegram-боте', uz: 'Xaritani Telegram-botda olish' },
+    stickyCta:        { ru: 'Написать Алтын →', uz: 'Altyn’ga yozish →' },
   },
 
   modal: {
@@ -223,6 +270,24 @@ export const ui = {
 
   bridge: {
     eyebrow:      { ru: 'Карта собрана', uz: 'Xarita yig‘ildi' },
+
+    // V6 — Owner direct bridge
+    titleOwner: { ru: 'Карта готова — можно написать Алтын', uz: 'Xarita tayyor — Altyn’ga yozsa bo‘ladi' },
+    bodyOwner: {
+      ru: 'Вы переходите в Telegram с уже собранной картой. Скопируйте короткое сообщение ниже или просто напишите Алтын, что хотите разобрать карту.',
+      uz: 'Yig‘ilgan xarita bilan Telegram’ga o‘tasiz. Quyidagi qisqa xabarni nusxalang yoki Altyn’ga xaritani tahlil qilmoqchi ekanligingizni yozing.',
+    },
+    messageHeading: { ru: 'Готовое сообщение для копирования', uz: 'Nusxa olish uchun tayyor xabar' },
+    messageTemplate: {
+      ru: 'Здравствуйте, Алтын. Я прошла ALTYN Mirror. Моя карта: «{scenario}», оттенок: «{secondary}». Главный вопрос: «{keyQuestion}». Хочу узнать про личный онлайн-разбор 60 минут за 10$.',
+      uz: 'Assalomu alaykum, Altyn. Men ALTYN Mirror’dan o‘tdim. Mening xaritam: «{scenario}», tus: «{secondary}». Asosiy savol: «{keyQuestion}». Shaxsiy 60 daqiqalik 10$ onlayn tahlil haqida bilmoqchiman.',
+    },
+    primaryOwner: { ru: 'Написать Алтын в Telegram →', uz: 'Altyn’ga Telegram’da yozish →' },
+    copyMessage:  { ru: 'Скопировать сообщение', uz: 'Xabarni nusxalash' },
+    copiedMessage:{ ru: 'Сообщение скопировано', uz: 'Xabar nusxalandi' },
+    openBotInstead: { ru: 'Открыть Telegram-бот вместо этого', uz: 'Buning o‘rniga Telegram-botni ochish' },
+
+    // V5/legacy — Personal bot bridge (kept as fallback)
     titlePersonal:{ ru: 'Ваша карта продолжится в Telegram', uz: 'Xaritangiz Telegram’da davom etadi' },
     titleGeneric: { ru: 'Открываем Telegram-бот ALTYN', uz: 'ALTYN Telegram-bot ochilmoqda' },
     promise: {
@@ -257,7 +322,7 @@ export const ui = {
       uz: 'Telegram ochilmasa — qayta bosing yoki havolani qo‘lda oching.',
     },
     notOpened:    { ru: 'Не открылось?', uz: 'Ochilmadimi?' },
-    copyLink:     { ru: 'Скопировать ссылку на бот', uz: 'Bot havolasini nusxalash' },
+    copyLink:     { ru: 'Скопировать ссылку на Алтын', uz: 'Altyn havolasini nusxalash' },
     copyOk:       { ru: 'Ссылка скопирована', uz: 'Havola nusxalandi' },
     copyFail:     { ru: 'Не удалось скопировать. Нажмите и удерживайте ссылку, чтобы скопировать вручную.', uz: 'Nusxalab bo‘lmadi. Havolani bosib turing va qo‘lda nusxalang.' },
     safe: {

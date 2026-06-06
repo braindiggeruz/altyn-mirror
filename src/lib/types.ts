@@ -40,4 +40,6 @@ export type ResultData = {
   // V5: per-scenario prep questions + session plan
   prepQuestions: { ru: string[]; uz: string[] };
   sessionPlan:   { ru: SessionPlanStep[]; uz: SessionPlanStep[] };
+  // V6: 3-line plain summary surfaced under "Что уже видно по карте"
+  whatsVisible: { ru: string[]; uz: string[] };
 };

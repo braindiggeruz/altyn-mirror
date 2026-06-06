@@ -72,6 +72,18 @@ export const RESULTS: Record<ResultKey, ResultData> = {
         { time: '3 · 15 daq.', text: 'Aylanani qayta yoqmaydigan bitta qadamni tuzamiz.' },
       ],
     },
+    whatsVisible: {
+      ru: [
+        'круг начинается с тёплого, быстрого сближения;',
+        'внимание удерживают редкие моменты, когда тепло возвращается;',
+        'повтор запускается через новый тёплый эпизод, после которого снова появляется надежда.',
+      ],
+      uz: [
+        'aylana iliq, tez yaqinlashishdan boshlanadi;',
+        'e’tiborni iliqlik qaytadigan kamdan-kam lahzalar ushlab turadi;',
+        'takror yangi iliq lahza orqali ishga tushadi, undan keyin yana umid paydo bo‘ladi.',
+      ],
+    },
   },
   tuman: {
     key: 'tuman',
@@ -140,6 +152,18 @@ export const RESULTS: Record<ResultKey, ResultData> = {
         { time: '1 · 10 daq.', text: 'Aniq bilganlaringizni va taxmin qilganlaringizni ajratamiz.' },
         { time: '2 · 35 daq.', text: 'Kutish fakt sifatida qabul qilingan joyni topamiz. Va aksincha.' },
         { time: '3 · 15 daq.', text: 'Bir aniq nuqtaga aniqlikni qaytaradigan bitta qadamni tuzamiz.' },
+      ],
+    },
+    whatsVisible: {
+      ru: [
+        'круг начинается спокойно, но без полной ясности;',
+        'внимание удерживает ожидание, что скоро станет понятнее;',
+        'повтор запускается там, где факты смешиваются с ожиданием.',
+      ],
+      uz: [
+        'aylana tinch boshlanadi, lekin to‘liq aniqliksiz;',
+        'e’tiborni tez orada tushunarli bo‘ladi degan kutish ushlab turadi;',
+        'takror faktlar kutish bilan aralashgan joyda ishga tushadi.',
       ],
     },
   },
@@ -212,6 +236,18 @@ export const RESULTS: Record<ResultKey, ResultData> = {
         { time: '3 · 15 daq.', text: 'Zudlik bilan javob talab qilmaydigan bitta qadamni tuzamiz.' },
       ],
     },
+    whatsVisible: {
+      ru: [
+        'круг начинается с желания быстро понять, что происходит;',
+        'внимание удерживает потребность услышать прямой ответ;',
+        'повтор запускается, когда контакт превращается в попытку всё прояснить.',
+      ],
+      uz: [
+        'aylana nima sodir bo‘layotganini tez tushunish istagidan boshlanadi;',
+        'e’tiborni to‘g‘ridan-to‘g‘ri javob eshitish ehtiyoji ushlab turadi;',
+        'takror aloqa hammasini oydinlashtirish urinishiga aylanganda ishga tushadi.',
+      ],
+    },
   },
   iskra: {
     key: 'iskra',
@@ -282,6 +318,18 @@ export const RESULTS: Record<ResultKey, ResultData> = {
         { time: '3 · 15 daq.', text: 'Faqat boshlanish emas, hozirgi reallikni tekshiradigan bitta qadamni tuzamiz.' },
       ],
     },
+    whatsVisible: {
+      ru: [
+        'круг начинается ярко и быстро, с сильным ощущением возможности;',
+        'внимание удерживает память о красивом начале;',
+        'повтор запускается через вспышку надежды, что всё может стать как тогда.',
+      ],
+      uz: [
+        'aylana yorqin va tez, kuchli imkoniyat tuyg‘usi bilan boshlanadi;',
+        'e’tiborni chiroyli boshlanish xotirasi ushlab turadi;',
+        'takror hammasi yana o‘shanday bo‘ladi degan umid uchquni orqali ishga tushadi.',
+      ],
+    },
   },
   dver: {
     key: 'dver',
@@ -350,6 +398,18 @@ export const RESULTS: Record<ResultKey, ResultData> = {
         { time: '1 · 10 daq.', text: 'E’tiborni ushlab turadigan bitta yaqinlik parchasini olamiz.' },
         { time: '2 · 35 daq.', text: 'Haqiqatan ochiq bo‘lgan va yopiq eshik ortida qolgan narsalarni ajratamiz.' },
         { time: '3 · 15 daq.', text: 'Eshik oldida kutmasdan aniqlikni saqlaydigan bitta qadamni tuzamiz.' },
+      ],
+    },
+    whatsVisible: {
+      ru: [
+        'круг начинается с дистанции и частичного сближения;',
+        'внимание удерживает ощущение, что дверь ещё может открыться;',
+        'повтор запускается там, где близость остаётся фрагментами, а важная часть закрыта.',
+      ],
+      uz: [
+        'aylana masofa va qisman yaqinlashishdan boshlanadi;',
+        'e’tiborni eshik hali ochilishi mumkin degan tuyg‘u ushlab turadi;',
+        'takror yaqinlik parchalarda qolgan, muhim qism yopiq joyda ishga tushadi.',
       ],
     },
   },

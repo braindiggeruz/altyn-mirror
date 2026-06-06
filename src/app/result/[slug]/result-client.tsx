@@ -8,23 +8,23 @@ import type { Lang, ResultKey } from '@/lib/types';
 import { RESULTS, RESULT_DISCLAIMER, RESULT_KEYS } from '@/lib/results';
 import { getStoredLang } from '@/lib/lang';
 import { track } from '@/lib/tracking';
+import { notify } from '@/lib/notify';
 import { loadSession, saveSession } from '@/lib/storage';
 import type { SessionData } from '@/lib/storage';
 import { newToken } from '@/lib/token';
 import { OrbitMark } from '@/components/OrbitMark';
 import { ShareCard } from '@/components/ShareCard';
-import { TelegramReadyModal } from '@/components/TelegramReadyModal';
 import { StickyTelegramCta } from '@/components/StickyTelegramCta';
 
 const VALID = new Set<ResultKey>(RESULT_KEYS);
+
+type IntentFrom = 'result_primary' | 'sticky_cta' | 'prep_block';
 
 export default function ResultClient({ slug }: { slug: string }) {
   const slugKey = (VALID.has(slug as ResultKey) ? (slug as ResultKey) : 'tuman');
   const [lang, setLang] = useState<Lang>('ru');
   const [session, setSession] = useState<SessionData | null>(null);
   const [savingState, setSavingState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const [modalOpen, setModalOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const primary: ResultKey = slugKey;
@@ -37,9 +37,11 @@ export default function ResultClient({ slug }: { slug: string }) {
   const markers = data.markers[lang] || data.markers.ru;
   const prepQuestions = data.prepQuestions[lang] || data.prepQuestions.ru;
   const sessionPlan = data.sessionPlan[lang] || data.sessionPlan.ru;
+  const whatsVisible = data.whatsVisible[lang] || data.whatsVisible.ru;
   const reassureChips = ui.result.reassureChips[lang];
   const meaningIsItems = ui.result.meaningIsItems[lang];
   const meaningIsNotItems = ui.result.meaningIsNotItems[lang];
+  const factsItems = ui.result.factsItems[lang];
 
   useEffect(() => {
     const l = getStoredLang();
@@ -58,22 +60,26 @@ export default function ResultClient({ slug }: { slug: string }) {
     }
     setSession(s);
 
-    // Mobile detection for single-click Telegram (V4)
-    if (typeof window !== 'undefined') {
-      const mob = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 640;
-      setIsMobile(mob);
-    }
-
     track.resultViewed(primary, s.secondary_result || '');
     track.resultMapViewed(primary, s.secondary_result || '');
     track.scenarioPassportViewed(primary);
+
+    // V6: notify the leads group that the map is complete (throttled per session)
+    const secLabel = s.secondary_result ? pick(RESULTS[s.secondary_result].title, l) : '';
+    notify('quiz_completed', {
+      scenario: pick(data.title, l),
+      secondary: secLabel,
+      key_question: pick(data.keyQuestion, l),
+      token_short: (s.token || '').replace(/^am_/, '').slice(0, 10),
+      page: '/result',
+    });
 
     const t1 = window.setTimeout(() => track.meaningBlockViewed(primary), 1200);
     const t2 = window.setTimeout(() => track.personalPrepViewed(primary), 1800);
     const t3 = window.setTimeout(() => track.personalizedOfferViewed(primary), 2400);
     const t4 = window.setTimeout(() => track.sessionPreviewViewed(primary), 2600);
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); window.clearTimeout(t3); window.clearTimeout(t4); };
-  }, [primary]);
+  }, [primary, data]);
 
   const tokenShort = (session?.token || '').replace(/^am_/, '').slice(0, 10) || '——';
   const completedDate = useMemo(() => {
@@ -88,24 +94,54 @@ export default function ResultClient({ slug }: { slug: string }) {
     } catch { return ''; }
   }, [session?.completed_at, session?.created_at]);
 
-  const telegramHref = useMemo(() => {
-    const bot = process.env.NEXT_PUBLIC_TELEGRAM_BOT || 'altyntherapybot';
-    return `https://t.me/${bot}?start=${session?.token || 'am_no_token'}`;
-  }, [session?.token]);
+  const scenarioLabel = pick(data.title, lang);
+  const secondaryLabel = secondaryData ? pick(secondaryData.title, lang) : '';
+  const keyQuestionLabel = pick(data.keyQuestion, lang);
 
-  // V4 — Single-click Telegram on mobile: if token exists, open t.me directly.
-  // Desktop / no-token → modal (extra confirmation context).
-  function onPrimaryCta(e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) {
+  // V6 — All "Написать Алтын" CTAs route through /go/telegram?target=owner
+  // and fire OwnerDirectIntentClicked + notify before navigating.
+  const ownerBridgeHref = useMemo(() => {
+    const t = session?.token || '';
+    return `/go/telegram/?target=owner&t=${encodeURIComponent(t)}&r=${primary}&from=`;
+  }, [session?.token, primary]);
+
+  const botBridgeHref = useMemo(() => {
+    const t = session?.token || '';
+    return `/go/telegram/?target=bot&t=${encodeURIComponent(t)}&r=${primary}&from=bot_secondary`;
+  }, [session?.token, primary]);
+
+  function fireOwnerIntent(from: IntentFrom): void {
     track.ctaClick(primary);
-    track.telegramIntentClicked(primary, 'primary_cta', !!session?.token);
-    if (isMobile && session?.token) {
-      track.telegramOpenAttempt(primary, true);
-      // anchor href handles navigation
-      return;
-    }
-    e.preventDefault();
-    track.telegramModalOpened(primary);
-    setModalOpen(true);
+    track.ownerDirectIntentClicked({
+      result_type: primary,
+      secondary_result: session?.secondary_result || '',
+      token_present: !!session?.token,
+      from,
+    });
+    notify('owner_direct_intent', {
+      scenario: scenarioLabel,
+      secondary: secondaryLabel,
+      key_question: keyQuestionLabel,
+      token_short: tokenShort === '——' ? '' : tokenShort,
+      from,
+      page: '/result',
+    });
+  }
+
+  function fireBotIntent(): void {
+    track.telegramIntentClicked({
+      result_type: primary,
+      secondary_result: session?.secondary_result || '',
+      token_present: !!session?.token,
+      from: 'bot_secondary',
+    });
+    notify('telegram_bot_intent', {
+      scenario: scenarioLabel,
+      secondary: secondaryLabel,
+      token_short: tokenShort === '——' ? '' : tokenShort,
+      from: 'bot_secondary',
+      page: '/result',
+    });
   }
 
   async function onSave() {
@@ -143,7 +179,7 @@ export default function ResultClient({ slug }: { slug: string }) {
         </Link>
       </header>
 
-      <section className="px-5 pt-7 pb-32 max-w-[640px] mx-auto">
+      <section className="px-5 pt-7 pb-40 max-w-[640px] mx-auto">
         {/* ── Above-fold zone ── */}
         <motion.p
           initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
@@ -157,7 +193,7 @@ export default function ResultClient({ slug }: { slug: string }) {
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.1 }}
           className="serif mt-3 text-[34px] leading-[1.06] text-ivory" style={{ fontWeight: 500 }}
         >
-          {pick(data.title, lang)}
+          {scenarioLabel}
         </motion.h1>
 
         {secondaryData && (
@@ -167,7 +203,7 @@ export default function ResultClient({ slug }: { slug: string }) {
             data-testid="nuance-badge"
           >
             <span className="text-[10px] uppercase tracking-[0.22em] text-gold/80">{pick(ui.result.nuanceBadge, lang)}</span>
-            <span className="text-[12.5px] text-ivory/85">{pick(secondaryData.title, lang)}</span>
+            <span className="text-[12.5px] text-ivory/85">{secondaryLabel}</span>
           </motion.div>
         )}
 
@@ -192,7 +228,7 @@ export default function ResultClient({ slug }: { slug: string }) {
           <OrbitMark className="w-[140px] h-[140px]" />
         </motion.div>
 
-        {/* ── Scenario Passport (no prep / no first step inside — those are now separate blocks) ── */}
+        {/* ── Scenario Passport ── */}
         <motion.section
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.3 }}
           className="mt-7 card card-gold-edge p-5 relative overflow-hidden"
@@ -213,9 +249,9 @@ export default function ResultClient({ slug }: { slug: string }) {
           </div>
 
           <div className="mt-4 space-y-3">
-            <MapRow label={pick(ui.result.cardPrimary, lang)} value={pick(data.title, lang)} accent testid="map-row-primary" />
+            <MapRow label={pick(ui.result.cardPrimary, lang)} value={scenarioLabel} accent testid="map-row-primary" />
             {secondaryData && (
-              <MapRow label={pick(ui.result.cardSecondary, lang)} value={pick(secondaryData.title, lang)} testid="map-row-secondary" />
+              <MapRow label={pick(ui.result.cardSecondary, lang)} value={secondaryLabel} testid="map-row-secondary" />
             )}
             <MapRow label={pick(ui.result.cardEntry, lang)} value={pick(data.map.start, lang)} testid="map-row-entry" />
             <MapRow label={pick(ui.result.cardHold, lang)}  value={pick(data.map.hold, lang)}  testid="map-row-hold" />
@@ -223,7 +259,7 @@ export default function ResultClient({ slug }: { slug: string }) {
             <div className="pt-2 mt-2 border-t border-gold/15">
               <p className="text-[11px] uppercase tracking-[0.22em] text-gold/70">{pick(ui.result.cardKey, lang)}</p>
               <p data-testid="map-row-key" className="serif mt-1 text-[19px] italic leading-[1.3] text-ivory">
-                “{pick(data.keyQuestion, lang)}”
+                “{keyQuestionLabel}”
               </p>
             </div>
           </div>
@@ -264,9 +300,37 @@ export default function ResultClient({ slug }: { slug: string }) {
           {pick(RESULT_DISCLAIMER, lang)}
         </p>
 
+        {/* ── V6: «Что уже видно по карте» — per-scenario practical summary ── */}
+        <motion.section
+          initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.58 }}
+          className="mt-9 card card-gold-edge p-5"
+          data-testid="whats-visible-block"
+        >
+          <p className="text-[11px] uppercase tracking-[0.24em] text-gold/80">
+            {pick(ui.result.whatsVisibleTitle, lang)}
+          </p>
+          <p className="mt-2 text-[14.5px] text-ivory/85 leading-[1.55]">
+            {pick(ui.result.whatsVisibleIntro, lang)}
+          </p>
+          <ol className="mt-3 space-y-2">
+            {whatsVisible.map((line, i) => (
+              <li
+                key={i}
+                className="flex gap-3 items-start"
+                data-testid={`whats-visible-${i + 1}`}
+              >
+                <span className="serif text-gold text-[18px] leading-none mt-0.5 shrink-0" style={{ fontWeight: 500 }}>
+                  {i + 1}.
+                </span>
+                <span className="text-[14.5px] text-ivory/90 leading-[1.55]">{line}</span>
+              </li>
+            ))}
+          </ol>
+        </motion.section>
+
         {/* ── V5: «Это значит / Это не значит» ── */}
         <motion.section
-          initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.6 }}
+          initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.62 }}
           className="mt-9 card card-gold-edge p-5"
           data-testid="meaning-block"
         >
@@ -303,9 +367,52 @@ export default function ResultClient({ slug }: { slug: string }) {
           </div>
         </motion.section>
 
-        {/* ── V5: Personal Prep block ── */}
+        {/* ── V6: «Где проверить факты» — static helper before live talk ── */}
         <motion.section
-          initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.7 }}
+          initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.66 }}
+          className="mt-9"
+          data-testid="facts-block"
+        >
+          <p className="text-[11px] uppercase tracking-[0.24em] text-gold/80">
+            {pick(ui.result.factsTitle, lang)}
+          </p>
+          <p className="mt-2 text-[14.5px] text-ivory/85 leading-[1.55]">
+            {pick(ui.result.factsIntro, lang)}
+          </p>
+          <ol className="mt-4 space-y-2.5">
+            {factsItems.map((q, i) => (
+              <li
+                key={i}
+                className="flex gap-3 items-start card card-gold-edge px-4 py-3"
+                data-testid={`facts-item-${i + 1}`}
+              >
+                <span className="serif text-gold text-[18px] leading-none mt-0.5 shrink-0" style={{ fontWeight: 500 }}>
+                  {i + 1}.
+                </span>
+                <span className="text-[14.5px] text-ivory/90 leading-[1.5]">{q}</span>
+              </li>
+            ))}
+          </ol>
+        </motion.section>
+
+        {/* ── V6: «Что лучше не делать сразу после карты» ── */}
+        <motion.section
+          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.7 }}
+          className="mt-9 card p-5"
+          style={{ background: 'rgba(20,20,25,0.55)' }}
+          data-testid="dont-do-block"
+        >
+          <p className="text-[11px] uppercase tracking-[0.24em] text-bordo-400">
+            {pick(ui.result.dontDoTitle, lang)}
+          </p>
+          <p className="mt-2 text-[14.5px] text-ivory/85 leading-[1.6]">
+            {pick(ui.result.dontDoBody, lang)}
+          </p>
+        </motion.section>
+
+        {/* ── V5: Personal Prep block (CTA now sends questions to Алтын directly) ── */}
+        <motion.section
+          initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.74 }}
           className="mt-9"
           data-testid="personal-prep"
         >
@@ -330,21 +437,16 @@ export default function ResultClient({ slug }: { slug: string }) {
             ))}
           </ol>
           <div className="mt-4">
-            <a
+            <Link
               data-testid="prep-telegram-cta"
-              href={telegramHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => {
-                track.telegramIntentClicked(primary, 'prep_block', !!session?.token);
-                track.telegramOpenAttempt(primary, !!session?.token);
-              }}
+              href={`${ownerBridgeHref}prep_block`}
+              onClick={() => fireOwnerIntent('prep_block')}
               className="inline-flex items-center gap-2 text-[14px] text-gold hover:text-gold-200 transition-colors"
             >
               <span className="underline-offset-2 underline decoration-gold/40">
                 {pick(ui.result.prepCta, lang)}
               </span>
-            </a>
+            </Link>
           </div>
         </motion.section>
 
@@ -362,14 +464,14 @@ export default function ResultClient({ slug }: { slug: string }) {
           </p>
         </motion.section>
 
-        {/* ── V5: Personalized offer block per scenario ── */}
+        {/* ── V5/V6: Personalized offer block per scenario ── */}
         <motion.section
           initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.86 }}
           className="mt-9"
           data-testid="personalized-offer"
         >
           <p className="text-[11px] uppercase tracking-[0.24em] text-gold/80">
-            {fmt(pick(ui.result.personalizedOfferTitle, lang), { scenario: pick(data.title, lang) })}
+            {fmt(pick(ui.result.personalizedOfferTitle, lang), { scenario: scenarioLabel })}
           </p>
           <ol className="mt-4 space-y-3">
             {sessionPlan.map((s, i) => (
@@ -383,9 +485,12 @@ export default function ResultClient({ slug }: { slug: string }) {
               </li>
             ))}
           </ol>
-          <div className="mt-4 text-[13px] text-ivory/70 leading-[1.55]" data-testid="offer-footer">
+          {/* V6 — "You won't redo the test" reassurance */}
+          <p className="mt-4 text-[14px] text-gold/90 leading-[1.55]" data-testid="offer-no-retest">
+            {pick(ui.result.personalizedOfferNoRetest, lang)}
+          </p>
+          <div className="mt-3 text-[13px] text-ivory/70 leading-[1.55]" data-testid="offer-footer">
             <p>{pick(ui.result.personalizedOfferFooter, lang)}</p>
-            <p className="mt-1">{pick(ui.result.personalizedOfferBooking, lang)}</p>
             <p className="mt-2 text-[12.5px] text-ivory/55">
               {pick(ui.result.personalizedOfferPayment, lang)}
             </p>
@@ -409,27 +514,35 @@ export default function ResultClient({ slug }: { slug: string }) {
           </ul>
         </motion.section>
 
-        {/* Continuation promise + Primary CTA */}
+        {/* ── V6: Continuation promise + Primary CTA → Алтын direct + Secondary CTA → bot ── */}
         <div className="mt-9">
-          <p className="text-[14px] text-gold/90 leading-[1.5]" data-testid="continuation-promise">
-            {fmt(pick(ui.result.continuationTokened, lang), { token: tokenShort })}
+          <p className="text-[14px] text-gold/90 leading-[1.55]" data-testid="continuation-promise">
+            {pick(ui.result.continueWithAltyn, lang)}
           </p>
 
           <div className="mt-4 flex flex-col gap-3">
-            <a
-              data-testid="result-cta-telegram"
-              href={telegramHref}
-              target={isMobile && session?.token ? '_blank' : undefined}
-              rel={isMobile && session?.token ? 'noopener noreferrer' : undefined}
-              onClick={onPrimaryCta}
+            <Link
+              data-testid="result-cta-altyn"
+              href={`${ownerBridgeHref}result_primary`}
+              onClick={() => fireOwnerIntent('result_primary')}
               className="btn-gold text-[16px] w-full text-center"
             >
               {pick(ui.result.primaryCta, lang)}
-            </a>
+            </Link>
+
+            <Link
+              data-testid="result-cta-bot"
+              href={botBridgeHref}
+              onClick={fireBotIntent}
+              className="btn-ghost text-[14px] w-full text-center"
+            >
+              {pick(ui.result.secondaryBotCta, lang)}
+            </Link>
+
             <button
               data-testid="result-save-btn"
               onClick={onSave}
-              className="btn-ghost text-[14px] w-full"
+              className="text-[13px] text-ivory/60 hover:text-gold transition-colors py-2"
               aria-live="polite"
             >
               {savingState === 'saving' ? pick(ui.result.saving, lang)
@@ -444,10 +557,10 @@ export default function ResultClient({ slug }: { slug: string }) {
         <div style={{ position: 'fixed', left: -99999, top: 0, pointerEvents: 'none' }} aria-hidden="true">
           <ShareCard
             ref={cardRef}
-            title={pick(data.title, lang)}
-            secondary={secondaryData ? pick(secondaryData.title, lang) : undefined}
+            title={scenarioLabel}
+            secondary={secondaryData ? secondaryLabel : undefined}
             markers={markers}
-            keyQuestion={pick(data.keyQuestion, lang)}
+            keyQuestion={keyQuestionLabel}
             lang={lang}
             firstStep={pick(data.firstStep, lang)}
             tokenShort={tokenShort}
@@ -462,26 +575,14 @@ export default function ResultClient({ slug }: { slug: string }) {
         <Link href="/contact/" className="hover:text-gold transition-colors">{pick(ui.legal.contact, lang)}</Link>
       </footer>
 
-      {/* Sticky bottom Telegram CTA (V4) */}
+      {/* Sticky bottom CTA → Алтын direct (V6) */}
       <StickyTelegramCta
         lang={lang}
-        telegramHref={telegramHref}
+        ownerHref={`${ownerBridgeHref}sticky_cta`}
         resultType={primary}
+        secondaryResult={session?.secondary_result || ''}
         tokenPresent={!!session?.token}
-      />
-
-      <TelegramReadyModal
-        open={modalOpen}
-        lang={lang}
-        scenario={pick(data.title, lang)}
-        nuance={secondaryData ? pick(secondaryData.title, lang) : undefined}
-        keyQuestion={pick(data.keyQuestion, lang)}
-        telegramHref={telegramHref}
-        onClose={() => setModalOpen(false)}
-        onConfirm={() => {
-          track.telegramOpenAttempt(primary, !!session?.token);
-          track.telegramIntentClicked(primary, 'result_modal_primary', !!session?.token);
-        }}
+        onClick={() => fireOwnerIntent('sticky_cta')}
       />
     </main>
   );

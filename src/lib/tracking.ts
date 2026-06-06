@@ -1,6 +1,8 @@
 // Meta Pixel + custom event helpers.
-// IMPORTANT: Lead is NEVER fired here. Lead is reserved for bot/CAPI confirmation
-// (or, optionally, a delayed fallback on /go/telegram — currently OFF).
+// IMPORTANT: Lead is NEVER fired here. All events are trackCustom.
+// No PII (no name, no phone, no telegram username) ever sent.
+
+import { loadSession } from './storage';
 
 type FbqFn = ((...args: unknown[]) => void) & { queue?: unknown[]; callMethod?: unknown };
 
@@ -21,6 +23,34 @@ function fbq(...args: unknown[]): void {
 }
 
 export const META_PIXEL_ID = PIXEL_ID;
+
+type IntentFrom =
+  | 'result_primary'
+  | 'sticky_cta'
+  | 'prep_block'
+  | 'bridge_owner'
+  | 'bot_secondary'
+  | 'bridge_bot'
+  | 'returning_chip'
+  | 'result_modal_primary'
+  | string;
+
+function sessionContext(): {
+  utm_source: string;
+  utm_campaign: string;
+  utm_content: string;
+  fbclid_present: boolean;
+  lang: string;
+} {
+  const s = loadSession();
+  return {
+    utm_source: s?.utm_source || '',
+    utm_campaign: s?.utm_campaign || '',
+    utm_content: s?.utm_content || '',
+    fbclid_present: !!s?.fbclid,
+    lang: s?.lang || 'ru',
+  };
+}
 
 export const track = {
   viewContent(): void {
@@ -70,12 +100,6 @@ export const track = {
   sessionPreviewViewed(result_type: string): void {
     fbq('trackCustom', 'SessionPreviewViewed', { result_type });
   },
-  telegramIntentClicked(result_type: string, from: string, token_present: boolean): void {
-    fbq('trackCustom', 'TelegramIntentClicked', { result_type, from, token_present });
-  },
-  bridgeViewed(result_type: string, token_present: boolean): void {
-    fbq('trackCustom', 'BridgeViewed', { result_type, token_present });
-  },
 
   // === V5 events ===
   meaningBlockViewed(result_type: string): void {
@@ -88,10 +112,55 @@ export const track = {
     fbq('trackCustom', 'PersonalizedOfferViewed', { result_type });
   },
 
+  // === V6 events ===
+  /** Click-through to Алтын direct DM (@Altyn2304). */
+  ownerDirectIntentClicked(args: {
+    result_type: string;
+    secondary_result: string;
+    token_present: boolean;
+    from: IntentFrom;
+  }): void {
+    const ctx = sessionContext();
+    fbq('trackCustom', 'OwnerDirectIntentClicked', {
+      result_type: args.result_type,
+      secondary_result: args.secondary_result,
+      token_present: args.token_present,
+      from: args.from,
+      ...ctx,
+    });
+  },
+  /** Click-through to bot fallback (@altyntherapybot). */
+  telegramIntentClicked(args: {
+    result_type: string;
+    secondary_result: string;
+    token_present: boolean;
+    from: IntentFrom;
+  }): void {
+    const ctx = sessionContext();
+    fbq('trackCustom', 'TelegramIntentClicked', {
+      result_type: args.result_type,
+      secondary_result: args.secondary_result,
+      token_present: args.token_present,
+      from: args.from,
+      utm_source: ctx.utm_source,
+      utm_campaign: ctx.utm_campaign,
+    });
+  },
+  bridgeViewed(args: {
+    result_type: string;
+    token_present: boolean;
+    target: 'owner' | 'bot';
+  }): void {
+    fbq('trackCustom', 'BridgeViewed', {
+      result_type: args.result_type,
+      token_present: args.token_present,
+      target: args.target,
+    });
+  },
+
   /**
    * Lead is intentionally NOT fired anywhere in this app.
    * Preferred: Telegram bot receives /start am_<token> → backend → Meta CAPI sends Lead.
-   * Fallback (DISABLED) gated by NEXT_PUBLIC_ENABLE_BRIDGE_LEAD flag.
    */
   leadHook_PLACEHOLDER(): void {
     // intentionally empty
