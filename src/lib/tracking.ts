@@ -42,6 +42,8 @@ function sessionContext(): {
   utm_term: string;
   fbclid_present: boolean;
   lang: string;
+  session_id: string;
+  landing_path: string;
 } {
   const s = loadSession();
   return {
@@ -51,7 +53,13 @@ function sessionContext(): {
     utm_term: s?.utm_term || '',
     fbclid_present: !!s?.fbclid,
     lang: s?.lang || 'ru',
+    session_id: s?.session_id || '',
+    landing_path: s?.landing_path || '',
   };
+}
+
+function currentPagePath(): string {
+  return typeof window !== 'undefined' ? window.location.pathname : '';
 }
 
 export const track = {
@@ -134,6 +142,7 @@ export const track = {
       secondary_result: args.secondary_result,
       token_present: args.token_present,
       from: args.from,
+      page_path: currentPagePath(),
       ...ctx,
     });
   },

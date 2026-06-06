@@ -15,6 +15,8 @@ export type SessionData = {
   utm_content?: string;
   utm_term?: string;
   fbclid?: string;
+  landing_path?: string;
+  referrer?: string;
   token?: string;       // am_<...>
   completed_at?: string;
   created_at: string;

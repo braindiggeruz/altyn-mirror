@@ -28,11 +28,11 @@ type EventKind =
 type NotifyPayload = {
   event: EventKind;
   session_id?: string;
-  session_short?: string;       // already shortened on the client
-  scenario?: string;            // e.g. "Туман без ясности"
-  secondary?: string;           // e.g. "Маятник тепла"
-  key_question?: string;        // primary scenario keyQuestion
-  token_short?: string;         // shortened am_ token, optional
+  session_short?: string;
+  scenario?: string;
+  secondary?: string;
+  key_question?: string;
+  token_short?: string;
   utm_source?: string;
   utm_campaign?: string;
   utm_content?: string;
@@ -40,9 +40,11 @@ type NotifyPayload = {
   fbclid_present?: boolean;
   result_type?: string;
   secondary_result?: string;
-  lang?: string;                // 'ru' | 'uz'
-  page?: string;                // e.g. '/play'
-  from?: string;                // CTA source label, e.g. 'result_primary'
+  lang?: string;
+  landing_path?: string;
+  referrer?: string;
+  page?: string;
+  from?: string;
 };
 
 type Env = {
@@ -62,7 +64,6 @@ const HEX_RE = /[^\p{L}\p{N}\s.,:;!?@#·«»"'()/+\-=*–—_…/]/gu;
 function clean(v: unknown, max = 160): string {
   if (v == null) return '';
   let s = String(v);
-  // remove control chars + unusual symbols + html-ish brackets
   s = s.replace(/[<>]/g, '');
   s = s.replace(HEX_RE, '');
   s = s.replace(/\s+/g, ' ').trim();
@@ -71,29 +72,52 @@ function clean(v: unknown, max = 160): string {
 }
 
 function escapeMd(s: string): string {
-  // Plain text — no Markdown parsing on send, but still strip backticks/asterisks
-  // that could be visually noisy in the chat.
   return s.replace(/[`*_~|]/g, '');
 }
 
+function fallback(value: string, alt: string): string {
+  const v = value.trim();
+  return v && v !== '—' ? v : alt;
+}
+
+// Human-readable labels for CTA source so the group sees "основная кнопка
+// результата" instead of "stickycta" or "result_primary".
+const FROM_LABEL_RU: Record<string, string> = {
+  result_primary:       'основная кнопка результата',
+  sticky_cta:           'липкая кнопка',
+  prep_block:           'блок вопросов',
+  returning_chip:       'повторный вход',
+  bridge_owner:         'bridge owner',
+  bridge_bot:           'bridge bot',
+  bot_secondary:        'бот fallback',
+  result_modal_primary: 'модалка результата',
+};
+
+function humanFrom(raw: string): string {
+  const key = raw.trim().toLowerCase().replace(/[\s-]+/g, '_');
+  if (FROM_LABEL_RU[key]) return FROM_LABEL_RU[key];
+  return key || '—';
+}
+
 function buildMessage(p: NotifyPayload): string {
-  const session = escapeMd(clean(p.session_short, 24)) || '—';
-  const sessionFull = escapeMd(clean(p.session_id, 64)) || '—';
-  const scenario = escapeMd(clean(p.scenario, 80)) || '—';
-  const secondary = escapeMd(clean(p.secondary, 80)) || '—';
-  const keyQ = escapeMd(clean(p.key_question, 200)) || '—';
-  const utmSrc = escapeMd(clean(p.utm_source, 40)) || '—';
-  const utmCamp = escapeMd(clean(p.utm_campaign, 60)) || '—';
-  const utmCont = escapeMd(clean(p.utm_content, 60)) || '—';
-  const utmTerm = escapeMd(clean(p.utm_term, 60)) || '—';
-  const fbclid = p.fbclid_present ? 'yes' : 'no';
-  const resultType = escapeMd(clean(p.result_type, 32)) || '—';
-  const secondaryRes = escapeMd(clean(p.secondary_result, 32)) || '—';
-  const lang = escapeMd(clean(p.lang, 8)) || '—';
-  const page = escapeMd(clean(p.page, 40)) || '—';
-  const token = escapeMd(clean(p.token_short, 24)) || '—';
-  const from = escapeMd(clean(p.from, 40)) || '—';
-  const src = `${utmSrc} / ${utmCamp}`;
+  const session       = escapeMd(clean(p.session_short, 24)) || '—';
+  const sessionFull   = escapeMd(clean(p.session_id, 64)) || '—';
+  const scenario      = fallback(escapeMd(clean(p.scenario, 80)),       '—');
+  const secondary     = fallback(escapeMd(clean(p.secondary, 80)),      '—');
+  const keyQ          = fallback(escapeMd(clean(p.key_question, 200)),  '—');
+  const utmSrc        = fallback(escapeMd(clean(p.utm_source, 40)),     'direct');
+  const utmCamp       = fallback(escapeMd(clean(p.utm_campaign, 60)),   'no_campaign');
+  const utmCont       = fallback(escapeMd(clean(p.utm_content, 60)),    '—');
+  const utmTerm       = fallback(escapeMd(clean(p.utm_term, 60)),       '—');
+  const fbclid        = p.fbclid_present ? 'yes' : 'no';
+  const resultType    = fallback(escapeMd(clean(p.result_type, 32)),    '—');
+  const secondaryRes  = fallback(escapeMd(clean(p.secondary_result,32)),'—');
+  const lang          = fallback(escapeMd(clean(p.lang, 8)),            '—');
+  const landingPath   = fallback(escapeMd(clean(p.landing_path, 80)),   '—');
+  const pagePath      = fallback(escapeMd(clean(p.page, 80)),           '—');
+  const token         = fallback(escapeMd(clean(p.token_short, 24)),    '—');
+  const fromHuman     = humanFrom(clean(p.from, 40));
+  const src           = `${utmSrc} / ${utmCamp}`;
 
   switch (p.event) {
     case 'quiz_started':
@@ -102,8 +126,10 @@ function buildMessage(p: NotifyPayload): string {
         '',
         `Сессия: ${session}`,
         `Источник: ${src}`,
+        `Креатив: ${utmCont}`,
         `Язык: ${lang}`,
-        `Страница: ${page}`,
+        `Страница входа: ${landingPath}`,
+        `Текущая страница: ${pagePath}`,
       ].join('\n');
 
     case 'quiz_completed':
@@ -114,6 +140,7 @@ function buildMessage(p: NotifyPayload): string {
         `Сценарий: ${scenario}`,
         `Оттенок: ${secondary}`,
         `Источник: ${src}`,
+        `Креатив: ${utmCont}`,
         'Следующий шаг: ждём Telegram',
       ].join('\n');
 
@@ -125,20 +152,19 @@ function buildMessage(p: NotifyPayload): string {
         `Сценарий: ${scenario}`,
         `Оттенок: ${secondary}`,
         `Главный вопрос: ${keyQ}`,
+        `Кнопка: ${fromHuman}`,
         `Источник: ${src}`,
-        `Кнопка: ${from}`,
+        `Креатив: ${utmCont}`,
+        `fbclid: ${fbclid}`,
         'Открывает: @Altyn2304',
         '',
         '— debug —',
         `result_type: ${resultType}`,
         `secondary_result: ${secondaryRes}`,
-        `utm_source: ${utmSrc}`,
-        `utm_campaign: ${utmCamp}`,
-        `utm_content: ${utmCont}`,
         `utm_term: ${utmTerm}`,
-        `fbclid: ${fbclid}`,
         `lang: ${lang}`,
-        `page: ${page}`,
+        `landing: ${landingPath}`,
+        `page: ${pagePath}`,
         `session_id: ${sessionFull}`,
       ].join('\n');
 
@@ -150,7 +176,9 @@ function buildMessage(p: NotifyPayload): string {
         `Сценарий: ${scenario}`,
         `Оттенок: ${secondary}`,
         `Start token: ${token}`,
+        `Кнопка: ${fromHuman}`,
         `Источник: ${src}`,
+        `Креатив: ${utmCont}`,
       ].join('\n');
   }
 }
@@ -166,7 +194,6 @@ function jsonResponse(body: unknown, status = 200): Response {
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
-  // Parse + validate
   let payload: NotifyPayload;
   try {
     const raw = await request.json();
@@ -182,7 +209,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const token = env.TELEGRAM_BOT_TOKEN;
   const chatId = env.TELEGRAM_LEADS_CHAT_ID;
   if (!token || !chatId) {
-    // Safe no-op — site keeps working without secrets.
     return jsonResponse({ ok: false, skipped: true });
   }
 
@@ -202,7 +228,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     });
 
     if (!tgRes.ok) {
-      // Don't leak the bot token or full URL.
       return jsonResponse({ ok: false, upstream: tgRes.status });
     }
     return jsonResponse({ ok: true });
@@ -211,7 +236,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
 };
 
-// CORS / preflight — same-origin in production but keep tolerant for previews.
 export const onRequestOptions: PagesFunction<Env> = async () => {
   return new Response(null, {
     status: 204,

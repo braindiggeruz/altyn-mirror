@@ -47,6 +47,17 @@ export type OpenOwnerArgs = {
 };
 
 const NOTIFY_FLAG_PREFIX = 'altyn.notified.owner_direct_intent.';
+const PENDING_KEY = 'altyn.notify.pending.v1';
+
+function queuePending(payload: Record<string, unknown>): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = window.localStorage.getItem(PENDING_KEY);
+    const list: unknown[] = raw ? (JSON.parse(raw) as unknown[]) : [];
+    list.push(payload);
+    window.localStorage.setItem(PENDING_KEY, JSON.stringify(list.slice(-5)));
+  } catch { /* ignore */ }
+}
 
 function shouldNotify(sessionId: string): boolean {
   if (typeof window === 'undefined') return false;
@@ -89,12 +100,13 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
   }
 
   // 3) Notify — sendBeacon when available, fetch+keepalive otherwise.
-  //    Throttled to once per session per intent.
+  //    Throttled to once per session per intent. Failure queues a single retry
+  //    that the next page load will replay (UtmCapture → replayPendingNotifications).
   const s = loadSession();
   const sessionId = s?.session_id || '';
   if (shouldNotify(sessionId)) {
-    const body = JSON.stringify({
-      event: 'owner_direct_intent',
+    const payload = {
+      event: 'owner_direct_intent' as const,
       session_id: sessionId,
       session_short: sessionId.slice(-10),
       scenario: args.scenarioTitle,
@@ -109,23 +121,33 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
       result_type: args.resultType,
       secondary_result: args.secondaryResult,
       lang: s?.lang || args.lang,
+      landing_path: s?.landing_path || '',
+      referrer: s?.referrer || '',
       from: args.from,
       page: typeof window !== 'undefined' ? window.location.pathname : '',
-    });
+    };
+    const body = JSON.stringify(payload);
+    let beaconOk = false;
     try {
       if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
         const blob = new Blob([body], { type: 'application/json' });
-        navigator.sendBeacon('/api/notify', blob);
-      } else {
+        beaconOk = navigator.sendBeacon('/api/notify', blob);
+      }
+    } catch { beaconOk = false; }
+    if (!beaconOk) {
+      // Try fetch keepalive; if THAT also fails synchronously, queue for retry.
+      try {
         fetch('/api/notify', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body,
           keepalive: true,
           credentials: 'omit',
-        }).catch(() => { /* swallow */ });
+        }).catch(() => queuePending(payload));
+      } catch {
+        queuePending(payload);
       }
-    } catch { /* swallow */ }
+    }
   }
 
   return message;
