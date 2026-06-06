@@ -32,6 +32,22 @@ export const RESULTS: Record<ResultKey, ResultData> = {
       uz: 'Kamdan-kam iliqlik aynan qayerda faktlardan kuchliroq bo‘ladi?',
     },
     cta: { ru: 'Разложить маятник в Telegram', uz: 'Mayatnikni Telegram’da tahlil qilish' },
+    bring: {
+      ru: [
+        'Один эпизод, после которого надежда вернулась сильнее всего',
+        'Какие факты в эти моменты остались в стороне',
+        'Что хотелось услышать в самой тёплой точке',
+      ],
+      uz: [
+        'Umid eng kuchli qaytgan bitta lahza',
+        'Bu lahzalarda qaysi faktlar chetda qoldi',
+        'Eng iliq nuqtada nimani eshitish istagi bo‘lgani',
+      ],
+    },
+    firstStep: {
+      ru: 'Отделить редкий тёплый эпизод от общей картины — посмотреть на него отдельно, без круга вокруг.',
+      uz: 'Kamdan-kam iliq lahzani umumiy manzaradan ajratish — uni atrofidagi aylanasiz alohida ko‘rish.',
+    },
   },
   tuman: {
     key: 'tuman',
@@ -62,6 +78,22 @@ export const RESULTS: Record<ResultKey, ResultData> = {
       uz: 'Faktlar qayerda tugaydi va kutish qayerda boshlanadi?',
     },
     cta: { ru: 'Разложить туман в Telegram', uz: 'Tumanni Telegram’da tahlil qilish' },
+    bring: {
+      ru: [
+        'Три факта, которые точно есть, без дорисовки',
+        'Один эпизод, где особенно не хватало формы',
+        'Какое именно ожидание чаще всего сливается с реальностью',
+      ],
+      uz: [
+        'Aniq mavjud uchta fakt, qo‘shimcha tasavvursiz',
+        'Shakl yetishmagan bitta lahza',
+        'Reallik bilan eng ko‘p aralashadigan kutish',
+      ],
+    },
+    firstStep: {
+      ru: 'На один лист — три факта, рядом — три ожидания. Не оценивая, просто разделить.',
+      uz: 'Bitta varaqqa — uchta fakt, yonida — uchta kutish. Bahosiz, oddiy ajratish.',
+    },
   },
   dogonyayu: {
     key: 'dogonyayu',
@@ -92,6 +124,22 @@ export const RESULTS: Record<ResultKey, ResultData> = {
       uz: 'Aloqa qayerda javob ortidan quvishga aylanadi?',
     },
     cta: { ru: 'Открыть личный маршрут', uz: 'Shaxsiy yo‘lni ochish' },
+    bring: {
+      ru: [
+        'Вопрос, который чаще всего хочется задать',
+        'Эпизод, где попытка прояснить запустила новый круг',
+        'Что должно появиться, чтобы вопрос можно было оставить',
+      ],
+      uz: [
+        'Eng ko‘p bermoqchi bo‘lgan savol',
+        'Aniqlashtirish urinishi yangi aylanani boshlagan lahza',
+        'Savolni qoldirish uchun nima paydo bo‘lishi kerak',
+      ],
+    },
+    firstStep: {
+      ru: 'Дать одному вопросу 24 часа тишины — и посмотреть, что меняется внутри, без ответа.',
+      uz: 'Bitta savolga 24 soat sukunat berish — javobsiz, ichda nima o‘zgarishini kuzatish.',
+    },
   },
   iskra: {
     key: 'iskra',
@@ -122,6 +170,22 @@ export const RESULTS: Record<ResultKey, ResultData> = {
       uz: 'Boshlanishda aynan nima ichki qaytish nuqtasiga aylandi?',
     },
     cta: { ru: 'Посмотреть сценарий глубже', uz: 'Stsenariyni chuqurroq ko‘rish' },
+    bring: {
+      ru: [
+        'Картина того самого яркого начала — без редактуры',
+        'Момент, когда темп резко изменился',
+        'Что сейчас держит память о старте сильнее текущего',
+      ],
+      uz: [
+        'O‘sha yorqin boshlanishning manzarasi — tahrirsiz',
+        'Temp keskin o‘zgargan lahza',
+        'Joriy holatdan ko‘ra boshlanish xotirasini ushlab turuvchi narsa',
+      ],
+    },
+    firstStep: {
+      ru: 'Описать начало одним абзацем — и рядом фактами зафиксировать, что есть прямо сейчас.',
+      uz: 'Boshlanishni bitta xat bilan tasvirlash — va yonida hozir bor faktlarni qayd etish.',
+    },
   },
   dver: {
     key: 'dver',
@@ -152,6 +216,22 @@ export const RESULTS: Record<ResultKey, ResultData> = {
       uz: 'Eshik hali ochilmagan joyga kirishni qayerda kutyapsiz?',
     },
     cta: { ru: 'Разложить сценарий с Алтын', uz: 'Stsenariyni ALTYN bilan tahlil qilish' },
+    bring: {
+      ru: [
+        'Один пример, где близость пришла фрагментом',
+        'Дверь, к которой возвращаешься чаще всего',
+        'Что должно появиться, чтобы перестать ждать у этой двери',
+      ],
+      uz: [
+        'Yaqinlik parcha sifatida kelgan bitta misol',
+        'Eng ko‘p qaytadigan eshik',
+        'Bu eshik oldida kutishni to‘xtatish uchun nima kerak',
+      ],
+    },
+    firstStep: {
+      ru: 'Назвать одну дверь, у которой больше не нужно стоять, — и записать это себе одной строкой.',
+      uz: 'Endi turish shart bo‘lmagan bitta eshikni nomlash — va buni o‘zingizga bitta qatorda yozish.',
+    },
   },
 };
 

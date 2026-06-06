@@ -49,7 +49,6 @@ export const ui = {
     mapAssembling: { ru: 'Карта собирается… {done} из {total} маркеров отмечены', uz: 'Xarita yig‘ilmoqda… {done}/{total} marker belgilandi' },
   },
 
-  // micro-confirm text after each answer, by result key
   markerCue: {
     mayatnik:  { ru: 'Отмечено: тепло возвращается', uz: 'Belgilandi: iliqlik qaytadi' },
     tuman:     { ru: 'Отмечено: туман ясности', uz: 'Belgilandi: aniqlik tumani' },
@@ -58,7 +57,6 @@ export const ui = {
     dver:      { ru: 'Отмечено: закрытая дверь', uz: 'Belgilandi: yopiq eshik' },
   },
 
-  // final transition before result
   assembled: {
     line1: { ru: '7 маркеров соединены', uz: '7 marker birlashdi' },
     line2: { ru: 'Сценарий проявился', uz: 'Stsenariy namoyon bo‘ldi' },
@@ -68,7 +66,6 @@ export const ui = {
   result: {
     eyebrow: { ru: 'Ваша карта сценария', uz: 'Sizning stsenariy xaritangiz' },
 
-    // Premium "scenario map" card above the description
     cardTitle:     { ru: 'Ваша карта сценария', uz: 'Sizning stsenariy xaritangiz' },
     cardPrimary:   { ru: 'Главный сценарий',     uz: 'Asosiy stsenariy' },
     cardSecondary: { ru: 'Второй оттенок',       uz: 'Ikkinchi tus' },
@@ -87,6 +84,53 @@ export const ui = {
     },
     nuanceBadge: { ru: 'Нюанс', uz: 'Nyuans' },
     keyQuestion: { ru: 'Ключевой вопрос для разбора', uz: 'Tahlil uchun asosiy savol' },
+
+    // V3 — Scenario Passport
+    passportEyebrow:  { ru: 'Сценарный паспорт', uz: 'Stsenariy pasporti' },
+    passportSerial:   { ru: 'Карта № {token} · {date}', uz: 'Xarita № {token} · {date}' },
+    bringHeading:     { ru: 'Что взять на личный разбор', uz: 'Shaxsiy tahlilga olib borish kerak' },
+    firstStepHeading: { ru: 'Первый спокойный шаг', uz: 'Birinchi xotirjam qadam' },
+    passportStamp:    { ru: 'Только для личной рефлексии', uz: 'Faqat shaxsiy mulohaza uchun' },
+
+    // V3 — Persuasive session preview
+    sessionTitle: { ru: 'Что будет на личном онлайн-разборе', uz: 'Shaxsiy onlayn tahlilda nima bo‘ladi' },
+    sessionSteps: {
+      ru: [
+        { t: '1 · Сверим карту', d: 'Посмотрим вашу карту сценария вместе и уточним, что в ней откликнулось.' },
+        { t: '2 · Разложим узел', d: 'Разделим факты и ожидания в самой сильной точке — без оценок и ярлыков.' },
+        { t: '3 · Один шаг', d: 'Сформулируем первый спокойный шаг, который реально подходит вам сейчас.' },
+      ],
+      uz: [
+        { t: '1 · Xaritani tekshiramiz', d: 'Stsenariy xaritangizni birgalikda ko‘rib, nima aks etganini aniqlaymiz.' },
+        { t: '2 · Tugunni yechamiz', d: 'Eng kuchli nuqtada faktlar va kutishlarni — bahosiz, yorliqsiz ajratamiz.' },
+        { t: '3 · Bitta qadam', d: 'Sizga hozir aynan mos keladigan birinchi xotirjam qadamni tuzamiz.' },
+      ],
+    },
+
+    // V3 — Reassurance chips
+    reassureTitle: { ru: 'Бережно и спокойно', uz: 'Ehtiyot bilan va xotirjam' },
+    reassureChips: {
+      ru: [
+        '60 минут онлайн',
+        'без оплаты на сайте',
+        'конфиденциально',
+        'без давления',
+        'это не медицинская услуга',
+      ],
+      uz: [
+        '60 daqiqa onlayn',
+        'saytda to‘lov yo‘q',
+        'maxfiy',
+        'bosimsiz',
+        'bu tibbiy xizmat emas',
+      ],
+    },
+
+    // V3 — Continuation promise above CTA
+    continuation: {
+      ru: 'В Telegram вы не начнёте заново — карта продолжится отсюда.',
+      uz: 'Telegram’da qaytadan boshlamaysiz — xarita shu yerdan davom etadi.',
+    },
 
     save:        { ru: 'Сохранить карту как изображение', uz: 'Xaritani rasm sifatida saqlash' },
     saving:      { ru: 'Собираем карту…',                  uz: 'Xarita yig‘ilmoqda…' },
@@ -109,14 +153,14 @@ export const ui = {
         'bosimsiz birinchi xotirjam qadamni ko‘rish',
       ],
     },
-    primaryCta: { ru: 'Открыть Telegram и сохранить результат', uz: 'Telegram’ni ochish va natijani saqlash' },
+    primaryCta: { ru: 'Открыть Telegram и продолжить карту', uz: 'Telegram’ni ochib, xaritani davom ettirish' },
   },
 
   modal: {
     title: { ru: 'Карта готова', uz: 'Xarita tayyor' },
     body:  {
-      ru: 'В Telegram откроется ваш результат и следующий шаг: 3 вопроса, которые помогут подготовиться к личному онлайн-разбору.',
-      uz: 'Telegram’da natijangiz va keyingi qadam ochiladi: shaxsiy onlayn tahlilga tayyorgarlik uchun 3 ta savol.',
+      ru: 'В Telegram вы не начнёте заново — карта продолжится отсюда. Откроются 3 коротких вопроса и, по желанию, запись на личный онлайн-разбор.',
+      uz: 'Telegram’da qaytadan boshlamaysiz — xarita shu yerdan davom etadi. 3 ta qisqa savol va, xohishingiz bilan, shaxsiy onlayn tahlilga yozilish ochiladi.',
     },
     rowScenario:  { ru: 'Сценарий',         uz: 'Stsenariy' },
     rowNuance:    { ru: 'Оттенок',          uz: 'Tus' },
@@ -126,12 +170,36 @@ export const ui = {
   },
 
   bridge: {
-    title: { ru: 'Открываем Telegram-бот ALTYN', uz: 'ALTYN Telegram-bot ochilmoqda' },
-    body: {
-      ru: 'В Telegram сохранится ваша карта сценария и откроется следующий шаг.',
-      uz: 'Telegram’da stsenariy xaritangiz saqlanadi va keyingi qadam ochiladi.',
+    eyebrow:      { ru: 'Карта собрана', uz: 'Xarita yig‘ildi' },
+    titlePersonal:{ ru: 'Ваша карта продолжится в Telegram', uz: 'Xaritangiz Telegram’da davom etadi' },
+    titleGeneric: { ru: 'Открываем Telegram-бот ALTYN', uz: 'ALTYN Telegram-bot ochilmoqda' },
+    promise: {
+      ru: 'Вы не начнёте заново. Бот узнает вашу карту по номеру и продолжит шаги отсюда.',
+      uz: 'Qaytadan boshlamaysiz. Bot xaritangizni raqami bo‘yicha taniydi va shu yerdan davom etadi.',
     },
-    open: { ru: 'Открыть Telegram', uz: 'Telegram’ni ochish' },
+    genericBody: {
+      ru: 'Если вы переходите впервые — лучше сначала собрать карту: это займёт около минуты.',
+      uz: 'Birinchi marta o‘tayotgan bo‘lsangiz — avval xaritani yig‘ib oling: bu bir daqiqa vaqt oladi.',
+    },
+    stepsHeading: { ru: 'Что произойдёт после нажатия', uz: 'Bosishdan keyin nima bo‘ladi' },
+    steps: {
+      ru: [
+        'Откроется @altyntherapybot',
+        'Бот увидит номер вашей карты',
+        '3 коротких вопроса · по желанию — запись на разбор',
+      ],
+      uz: [
+        '@altyntherapybot ochiladi',
+        'Bot xaritangiz raqamini ko‘radi',
+        '3 ta qisqa savol · xohishga ko‘ra — tahlilga yozilish',
+      ],
+    },
+    cardLabel:     { ru: 'Карта № {token}', uz: 'Xarita № {token}' },
+    rowScenario:   { ru: 'Сценарий',        uz: 'Stsenariy' },
+    rowNuance:     { ru: 'Оттенок',         uz: 'Tus' },
+    rowKey:        { ru: 'Ключевой вопрос', uz: 'Asosiy savol' },
+    open:          { ru: 'Открыть Telegram', uz: 'Telegram’ni ochish' },
+    openFirst:     { ru: 'Сначала собрать карту', uz: 'Avval xaritani yig‘ish' },
     fallback: {
       ru: 'Если Telegram не открылся — нажмите ещё раз или откройте ссылку вручную.',
       uz: 'Telegram ochilmasa — qayta bosing yoki havolani qo‘lda oching.',

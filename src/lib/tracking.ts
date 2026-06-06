@@ -1,6 +1,6 @@
 // Meta Pixel + custom event helpers.
-// IMPORTANT: We DO NOT fire `Lead` on homepage PageView.
-// Lead is reserved for /go/telegram fallback or later backend/bot confirmation.
+// IMPORTANT: Lead is NEVER fired here. Lead is reserved for bot/CAPI confirmation
+// (or, optionally, a delayed fallback on /go/telegram — currently OFF).
 
 type FbqFn = ((...args: unknown[]) => void) & { queue?: unknown[]; callMethod?: unknown };
 
@@ -63,13 +63,36 @@ export const track = {
     fbq('trackCustom', 'TelegramOpenAttempt', { result_type, token_present });
   },
 
+  // === V3 drop-off & engagement events (all Meta-safe; custom only) ===
+  scenarioPassportViewed(result_type: string): void {
+    fbq('trackCustom', 'ScenarioPassportViewed', { result_type });
+  },
+  sessionPreviewViewed(result_type: string): void {
+    fbq('trackCustom', 'SessionPreviewViewed', { result_type });
+  },
+  telegramIntentClicked(result_type: string, from: string, token_present: boolean): void {
+    fbq('trackCustom', 'TelegramIntentClicked', { result_type, from, token_present });
+  },
+  bridgeViewed(result_type: string, token_present: boolean): void {
+    fbq('trackCustom', 'BridgeViewed', { result_type, token_present });
+  },
+
   /**
-   * Lead is intentionally NOT fired anywhere on the funnel by default.
-   * Hook this up only on /go/telegram as a delayed fallback, or — preferred —
-   * have the Telegram bot/backend confirm the lead via CAPI (Conversions API).
+   * Lead is intentionally NOT fired anywhere in this app.
    *
-   *   Example fallback (commented out — uncomment + tune timing if needed):
-   *     setTimeout(() => fbq('track', 'Lead', { content_name: 'altyn-mirror' }), 4000);
+   * PREFERRED architecture:
+   *   Telegram bot receives /start am_<token> → backend → Meta CAPI sends `Lead`
+   *   with hashed contact (em/ph) + click_id, attributed to the original fbclid/UTMs
+   *   stored on the bridge.
+   *
+   * Fallback (DISABLED for now — flip the env flag when ready):
+   *   On /go/telegram, after the user actually clicks the Telegram button and
+   *   ~3.5s pass, fire fbq('track','Lead'). Do NOT call this on PageView.
+   *
+   *   Example:
+   *     if (process.env.NEXT_PUBLIC_ENABLE_BRIDGE_LEAD === '1') {
+   *       setTimeout(() => fbq('track','Lead', { content_name: 'altyn-mirror-bridge' }), 3500);
+   *     }
    */
   leadHook_PLACEHOLDER(): void {
     // intentionally empty
