@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="0%" r="80%">
+      <stop offset="0%" stop-color="#1c1408" />
+      <stop offset="60%" stop-color="#0a0a0c" />
+      <stop offset="100%" stop-color="#070708" />
+    </radialGradient>
+    <radialGradient id="orb" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff5d0" />
+      <stop offset="55%" stop-color="#cea03a" />
+      <stop offset="100%" stop-color="#4b3408" />
+    </radialGradient>
+    <linearGradient id="ring" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f3e3b0" stop-opacity="0.95"/>
+      <stop offset="55%" stop-color="#cea03a" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#5e1822" stop-opacity="0.7"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g transform="translate(900,315)">
+    <circle r="200" stroke="url(#ring)" stroke-width="1.2" fill="none" opacity="0.65"/>
+    <circle r="160" stroke="url(#ring)" stroke-width="0.9" fill="none" opacity="0.45"/>
+    <circle r="120" stroke="url(#ring)" stroke-width="0.7" fill="none" opacity="0.35"/>
+    <circle r="64" fill="url(#orb)" />
+  </g>
+  <g transform="translate(80,210)" fill="#f4ecd8" font-family="Cormorant Garamond, Garamond, serif">
+    <text font-size="34" fill="#cea03a" letter-spacing="6">ALTYN MIRROR</text>
+    <text y="92" font-size="74" font-weight="500">Карта повторяющегося</text>
+    <text y="170" font-size="74" font-weight="500">сценария</text>
+    <text y="240" font-size="26" fill="#c9c1ad">60 секунд · бережно · конфиденциально</text>
+    <text y="320" font-size="22" fill="#8b8674">altyn-mirror.pages.dev</text>
+  </g>
+</svg>

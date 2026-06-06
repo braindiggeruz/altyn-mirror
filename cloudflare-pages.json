@@ -1,0 +1,12 @@
+{
+  "framework": "Next.js (static export)",
+  "buildCommand": "yarn build",
+  "outputDirectory": "out",
+  "rootDirectory": "/",
+  "environment": {
+    "NEXT_PUBLIC_META_PIXEL_ID": "2475663283169925",
+    "NEXT_PUBLIC_TELEGRAM_BOT": "altyntherapybot",
+    "NEXT_PUBLIC_SITE_URL": "https://altyn-mirror.pages.dev"
+  },
+  "note": "No custom domain. pages.dev only. Do not touch existing CF Pages projects."
+}
