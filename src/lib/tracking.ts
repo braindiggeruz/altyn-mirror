@@ -159,8 +159,8 @@ export const track = {
       secondary_result: args.secondary_result,
       token_present: args.token_present,
       from: args.from,
-      utm_source: ctx.utm_source,
-      utm_campaign: ctx.utm_campaign,
+      page_path: currentPagePath(),
+      ...ctx,
     });
   },
   bridgeViewed(args: {

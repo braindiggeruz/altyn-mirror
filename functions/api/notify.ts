@@ -108,7 +108,6 @@ function buildMessage(p: NotifyPayload): string {
   const utmSrc        = fallback(escapeMd(clean(p.utm_source, 40)),     'direct');
   const utmCamp       = fallback(escapeMd(clean(p.utm_campaign, 60)),   'no_campaign');
   const utmCont       = fallback(escapeMd(clean(p.utm_content, 60)),    '—');
-  const utmTerm       = fallback(escapeMd(clean(p.utm_term, 60)),       '—');
   const fbclid        = p.fbclid_present ? 'yes' : 'no';
   const resultType    = fallback(escapeMd(clean(p.result_type, 32)),    '—');
   const secondaryRes  = fallback(escapeMd(clean(p.secondary_result,32)),'—');
@@ -161,9 +160,7 @@ function buildMessage(p: NotifyPayload): string {
         '— debug —',
         `result_type: ${resultType}`,
         `secondary_result: ${secondaryRes}`,
-        `utm_term: ${utmTerm}`,
         `lang: ${lang}`,
-        `landing: ${landingPath}`,
         `page: ${pagePath}`,
         `session_id: ${sessionFull}`,
       ].join('\n');
@@ -176,9 +173,9 @@ function buildMessage(p: NotifyPayload): string {
         `Сценарий: ${scenario}`,
         `Оттенок: ${secondary}`,
         `Start token: ${token}`,
-        `Кнопка: ${fromHuman}`,
         `Источник: ${src}`,
         `Креатив: ${utmCont}`,
+        `fbclid: ${fbclid}`,
       ].join('\n');
   }
 }
