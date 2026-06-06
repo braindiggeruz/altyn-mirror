@@ -33,6 +33,7 @@ type IntentFrom =
   | 'bridge_bot'
   | 'returning_chip'
   | 'result_modal_primary'
+  | 'recovery_toast'
   | string;
 
 function sessionContext(): {
@@ -78,8 +79,12 @@ export const track = {
   answerScene(scene_index: number, answer_id: string, result_key: string): void {
     fbq('trackCustom', 'AnswerScene', { scene_index, answer_id, result_key });
   },
-  mirrorCompleted(): void {
-    fbq('trackCustom', 'MirrorCompleted');
+  mirrorCompleted(eventId?: string): void {
+    if (eventId) {
+      fbq('trackCustom', 'MirrorCompleted', {}, { eventID: eventId });
+    } else {
+      fbq('trackCustom', 'MirrorCompleted');
+    }
   },
   resultViewed(result_type: string, secondary_result: string): void {
     fbq('trackCustom', 'ResultViewed', { result_type, secondary_result });
@@ -129,11 +134,12 @@ export const track = {
     secondary_result: string;
     token_present: boolean;
     from: IntentFrom;
+    event_id?: string;
   }): void {
     const ctx = sessionContext();
     // Pixel custom event — never `Lead`. value/currency tag the in-funnel
     // intent so Meta can optimise on it as a Custom Conversion later.
-    fbq('trackCustom', 'OwnerDirectIntentClicked', {
+    const params = {
       content_name: 'altyn_mirror_owner_direct',
       content_category: 'telegram_owner_intent',
       value: 10,
@@ -144,7 +150,12 @@ export const track = {
       from: args.from,
       page_path: currentPagePath(),
       ...ctx,
-    });
+    };
+    if (args.event_id) {
+      fbq('trackCustom', 'OwnerDirectIntentClicked', params, { eventID: args.event_id });
+    } else {
+      fbq('trackCustom', 'OwnerDirectIntentClicked', params);
+    }
   },
   /** Click-through to bot fallback (@altyntherapybot). */
   telegramIntentClicked(args: {

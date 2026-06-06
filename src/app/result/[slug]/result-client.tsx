@@ -9,6 +9,7 @@ import { RESULTS, RESULT_DISCLAIMER, RESULT_KEYS } from '@/lib/results';
 import { getStoredLang } from '@/lib/lang';
 import { track } from '@/lib/tracking';
 import { notify } from '@/lib/notify';
+import { sendCapi, mirrorCompletedEventId, shouldFireMirrorCompleted } from '@/lib/capi';
 import { loadSession, saveSession } from '@/lib/storage';
 import type { SessionData } from '@/lib/storage';
 import { newToken } from '@/lib/token';
@@ -62,6 +63,27 @@ export default function ResultClient({ slug }: { slug: string }) {
     track.resultViewed(primary, s.secondary_result || '');
     track.resultMapViewed(primary, s.secondary_result || '');
     track.scenarioPassportViewed(primary);
+
+    // V6.4 — MirrorCompleted safety net for direct visits to /result/[slug]
+    // (e.g. saved-link, browser back). Same event_id as /play finalize so
+    // Meta dedupes browser + server fires.
+    if (s.session_id && shouldFireMirrorCompleted(s.session_id)) {
+      const mcEventId = mirrorCompletedEventId(s.session_id);
+      track.mirrorCompleted(mcEventId);
+      sendCapi('MirrorCompleted', mcEventId, {
+        content_name: 'altyn_mirror_completed',
+        content_category: 'mirror_completed',
+        result_type: primary,
+        secondary_result: s.secondary_result && s.secondary_result !== primary ? s.secondary_result : '',
+        from: 'result_mount',
+        lang: l,
+        utm_source: s.utm_source || '',
+        utm_campaign: s.utm_campaign || '',
+        utm_content: s.utm_content || '',
+        utm_term: s.utm_term || '',
+        token_present: !!s.token,
+      });
+    }
 
     // V6: notify the leads group that the map is complete (throttled per session)
     const secLabel = s.secondary_result ? pick(RESULTS[s.secondary_result].title, l) : '';

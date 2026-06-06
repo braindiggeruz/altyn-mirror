@@ -87,6 +87,7 @@ const FROM_LABEL_RU: Record<string, string> = {
   sticky_cta:           'липкая кнопка',
   prep_block:           'блок вопросов',
   returning_chip:       'повторный вход',
+  recovery_toast:       'возвратный toast',
   bridge_owner:         'bridge owner',
   bridge_bot:           'bridge bot',
   bot_secondary:        'бот fallback',

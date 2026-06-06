@@ -12,6 +12,7 @@ import { scoreAnswers } from '@/lib/scoring';
 import { getStoredLang } from '@/lib/lang';
 import { track } from '@/lib/tracking';
 import { notify } from '@/lib/notify';
+import { sendCapi, mirrorCompletedEventId, shouldFireMirrorCompleted } from '@/lib/capi';
 import { loadSession, saveSession, makeSessionId } from '@/lib/storage';
 import type { SessionData } from '@/lib/storage';
 import { newToken } from '@/lib/token';
@@ -89,12 +90,12 @@ export default function PlayPage() {
   }
 
   function finalize(finalPath: AnswerPathEntry[]) {
-    track.mirrorCompleted();
     const { primary, secondary } = scoreAnswers(finalPath);
     const existing = loadSession();
     const token = existing?.token || newToken();
+    const sessionId = existing?.session_id || makeSessionId();
     const session: SessionData = {
-      session_id: existing?.session_id || makeSessionId(),
+      session_id: sessionId,
       lang,
       result_type: primary,
       secondary_result: secondary,
@@ -110,6 +111,26 @@ export default function PlayPage() {
       created_at: existing?.created_at || new Date().toISOString(),
     };
     saveSession(session);
+
+    // V6.4 — MirrorCompleted: browser Pixel + CAPI with shared event_id.
+    // Throttled to once per session via localStorage flag.
+    if (shouldFireMirrorCompleted(sessionId)) {
+      const mcEventId = mirrorCompletedEventId(sessionId);
+      track.mirrorCompleted(mcEventId);
+      sendCapi('MirrorCompleted', mcEventId, {
+        content_name: 'altyn_mirror_completed',
+        content_category: 'mirror_completed',
+        result_type: primary,
+        secondary_result: secondary && secondary !== primary ? secondary : '',
+        from: 'play_finalize',
+        lang,
+        utm_source: existing?.utm_source || '',
+        utm_campaign: existing?.utm_campaign || '',
+        utm_content: existing?.utm_content || '',
+        utm_term: existing?.utm_term || '',
+        token_present: !!token,
+      });
+    }
 
     // V6 — notify leads group that the map is complete (also fired on
     // /result mount as a safety net; both throttled to once per session).

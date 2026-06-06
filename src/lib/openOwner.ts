@@ -8,6 +8,7 @@
 
 import { track } from './tracking';
 import { loadSession } from './storage';
+import { sendCapi, ownerDirectEventId } from './capi';
 
 export const OWNER_HANDLE = 'Altyn2304';
 export const OWNER_URL = `https://t.me/${OWNER_HANDLE}`;
@@ -17,6 +18,7 @@ export type OwnerDirectFrom =
   | 'sticky_cta'
   | 'prep_block'
   | 'returning_chip'
+  | 'recovery_toast'
   | 'bridge_owner'
   | 'result_modal_primary';
 
@@ -83,7 +85,11 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
     lang: args.lang,
   });
 
-  // 1) Pixel — synchronous trackCustom. Never Lead.
+  // 1) Pixel — synchronous trackCustom with eventID for browser/CAPI dedupe.
+  //    Never Lead.
+  const s = loadSession();
+  const sessionId = s?.session_id || '';
+  const eventId = ownerDirectEventId(sessionId);
   try {
     track.ctaClick(args.resultType);
     track.ownerDirectIntentClicked({
@@ -91,6 +97,27 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
       secondary_result: args.secondaryResult,
       token_present: args.tokenPresent,
       from: args.from,
+      event_id: eventId,
+    });
+  } catch { /* swallow */ }
+
+  // 1b) CAPI — server-side dispatch with the SAME event_id for dedupe.
+  //     Same-origin so _fbp / _fbc cookies are forwarded automatically.
+  try {
+    sendCapi('OwnerDirectIntentClicked', eventId, {
+      content_name: 'altyn_mirror_owner_direct',
+      content_category: 'telegram_owner_intent',
+      value: 10,
+      currency: 'USD',
+      result_type: args.resultType,
+      secondary_result: args.secondaryResult,
+      from: args.from,
+      lang: s?.lang || args.lang,
+      utm_source: s?.utm_source || '',
+      utm_campaign: s?.utm_campaign || '',
+      utm_content: s?.utm_content || '',
+      utm_term: s?.utm_term || '',
+      token_present: args.tokenPresent,
     });
   } catch { /* swallow */ }
 
@@ -102,8 +129,6 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
   // 3) Notify — sendBeacon when available, fetch+keepalive otherwise.
   //    Throttled to once per session per intent. Failure queues a single retry
   //    that the next page load will replay (UtmCapture → replayPendingNotifications).
-  const s = loadSession();
-  const sessionId = s?.session_id || '';
   if (shouldNotify(sessionId)) {
     const payload = {
       event: 'owner_direct_intent' as const,
