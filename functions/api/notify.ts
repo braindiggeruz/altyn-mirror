@@ -27,6 +27,7 @@ type EventKind =
 
 type NotifyPayload = {
   event: EventKind;
+  session_id?: string;
   session_short?: string;       // already shortened on the client
   scenario?: string;            // e.g. "Туман без ясности"
   secondary?: string;           // e.g. "Маятник тепла"
@@ -35,6 +36,10 @@ type NotifyPayload = {
   utm_source?: string;
   utm_campaign?: string;
   utm_content?: string;
+  utm_term?: string;
+  fbclid_present?: boolean;
+  result_type?: string;
+  secondary_result?: string;
   lang?: string;                // 'ru' | 'uz'
   page?: string;                // e.g. '/play'
   from?: string;                // CTA source label, e.g. 'result_primary'
@@ -73,11 +78,17 @@ function escapeMd(s: string): string {
 
 function buildMessage(p: NotifyPayload): string {
   const session = escapeMd(clean(p.session_short, 24)) || '—';
+  const sessionFull = escapeMd(clean(p.session_id, 64)) || '—';
   const scenario = escapeMd(clean(p.scenario, 80)) || '—';
   const secondary = escapeMd(clean(p.secondary, 80)) || '—';
   const keyQ = escapeMd(clean(p.key_question, 200)) || '—';
   const utmSrc = escapeMd(clean(p.utm_source, 40)) || '—';
   const utmCamp = escapeMd(clean(p.utm_campaign, 60)) || '—';
+  const utmCont = escapeMd(clean(p.utm_content, 60)) || '—';
+  const utmTerm = escapeMd(clean(p.utm_term, 60)) || '—';
+  const fbclid = p.fbclid_present ? 'yes' : 'no';
+  const resultType = escapeMd(clean(p.result_type, 32)) || '—';
+  const secondaryRes = escapeMd(clean(p.secondary_result, 32)) || '—';
   const lang = escapeMd(clean(p.lang, 8)) || '—';
   const page = escapeMd(clean(p.page, 40)) || '—';
   const token = escapeMd(clean(p.token_short, 24)) || '—';
@@ -117,6 +128,18 @@ function buildMessage(p: NotifyPayload): string {
         `Источник: ${src}`,
         `Кнопка: ${from}`,
         'Открывает: @Altyn2304',
+        '',
+        '— debug —',
+        `result_type: ${resultType}`,
+        `secondary_result: ${secondaryRes}`,
+        `utm_source: ${utmSrc}`,
+        `utm_campaign: ${utmCamp}`,
+        `utm_content: ${utmCont}`,
+        `utm_term: ${utmTerm}`,
+        `fbclid: ${fbclid}`,
+        `lang: ${lang}`,
+        `page: ${page}`,
+        `session_id: ${sessionFull}`,
       ].join('\n');
 
     case 'telegram_bot_intent':

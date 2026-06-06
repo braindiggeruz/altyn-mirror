@@ -95,6 +95,7 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
   if (shouldNotify(sessionId)) {
     const body = JSON.stringify({
       event: 'owner_direct_intent',
+      session_id: sessionId,
       session_short: sessionId.slice(-10),
       scenario: args.scenarioTitle,
       secondary: args.secondaryTitle,
@@ -103,6 +104,10 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
       utm_source: s?.utm_source || '',
       utm_campaign: s?.utm_campaign || '',
       utm_content: s?.utm_content || '',
+      utm_term: s?.utm_term || '',
+      fbclid_present: !!s?.fbclid,
+      result_type: args.resultType,
+      secondary_result: args.secondaryResult,
       lang: s?.lang || args.lang,
       from: args.from,
       page: typeof window !== 'undefined' ? window.location.pathname : '',

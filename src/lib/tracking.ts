@@ -39,6 +39,7 @@ function sessionContext(): {
   utm_source: string;
   utm_campaign: string;
   utm_content: string;
+  utm_term: string;
   fbclid_present: boolean;
   lang: string;
 } {
@@ -47,6 +48,7 @@ function sessionContext(): {
     utm_source: s?.utm_source || '',
     utm_campaign: s?.utm_campaign || '',
     utm_content: s?.utm_content || '',
+    utm_term: s?.utm_term || '',
     fbclid_present: !!s?.fbclid,
     lang: s?.lang || 'ru',
   };
@@ -121,7 +123,13 @@ export const track = {
     from: IntentFrom;
   }): void {
     const ctx = sessionContext();
+    // Pixel custom event — never `Lead`. value/currency tag the in-funnel
+    // intent so Meta can optimise on it as a Custom Conversion later.
     fbq('trackCustom', 'OwnerDirectIntentClicked', {
+      content_name: 'altyn_mirror_owner_direct',
+      content_category: 'telegram_owner_intent',
+      value: 10,
+      currency: 'USD',
       result_type: args.result_type,
       secondary_result: args.secondary_result,
       token_present: args.token_present,

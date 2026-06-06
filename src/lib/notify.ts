@@ -41,6 +41,8 @@ export type NotifyExtras = {
   token_short?: string;
   page?: string;
   from?: string;
+  result_type?: string;
+  secondary_result?: string;
 };
 
 function shortSession(id: string | undefined): string {
@@ -62,6 +64,7 @@ export function notify(event: NotifyEvent, extras: NotifyExtras = {}): void {
 
   const payload = {
     event,
+    session_id: sessionId,
     session_short: shortSession(sessionId),
     scenario: extras.scenario || '',
     secondary: extras.secondary || '',
@@ -70,6 +73,10 @@ export function notify(event: NotifyEvent, extras: NotifyExtras = {}): void {
     utm_source: s?.utm_source || '',
     utm_campaign: s?.utm_campaign || '',
     utm_content: s?.utm_content || '',
+    utm_term: s?.utm_term || '',
+    fbclid_present: !!s?.fbclid,
+    result_type: extras.result_type || s?.result_type || '',
+    secondary_result: extras.secondary_result || s?.secondary_result || '',
     lang: s?.lang || 'ru',
     page: extras.page || (typeof window !== 'undefined' ? window.location.pathname : ''),
     from: extras.from || '',
