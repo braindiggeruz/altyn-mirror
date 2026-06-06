@@ -122,6 +122,11 @@ body {
 }
 @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
+/* Mobile safe-area helpers */
+.pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
+.pb-safe-extra { padding-bottom: calc(env(safe-area-inset-bottom) + 24px); }
+.pt-safe { padding-top: max(env(safe-area-inset-top), 0px); }
+
 /* Reduce motion */
 @media (prefers-reduced-motion: reduce){
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }

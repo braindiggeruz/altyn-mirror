@@ -21,7 +21,6 @@ export default function HeroPage() {
     setMounted(true);
     setLang(getStoredLang());
 
-    // Capture UTM/fbclid once on landing and seed the session.
     const utm = readUtmFromUrl();
     const existing = loadSession();
     const session: SessionData = existing ?? {
@@ -30,20 +29,14 @@ export default function HeroPage() {
       answer_path: [],
       created_at: new Date().toISOString(),
     };
-    const merged: SessionData = { ...session, ...utm };
-    saveSession(merged);
-
-    // ViewContent fires on hero load. PageView is fired in layout.
+    saveSession({ ...session, ...utm });
     track.viewContent();
   }, []);
 
-  const onLangChange = (l: Lang) => {
-    setLang(l);
-    setStoredLang(l);
-  };
+  const onLangChange = (l: Lang) => { setLang(l); setStoredLang(l); };
 
   return (
-    <main className="relative min-h-[100dvh] overflow-hidden">
+    <main className="relative min-h-[100dvh] overflow-hidden pb-safe">
       <header className="px-5 pt-5 flex items-center justify-between">
         <Link href="/" data-testid="brand-mark" className="serif text-[20px] tracking-[0.08em] text-ivory">
           <span className="text-gold">ALTYN</span> Mirror
@@ -51,7 +44,7 @@ export default function HeroPage() {
         {mounted && <LangSwitcher lang={lang} onChange={onLangChange} />}
       </header>
 
-      <section className="px-5 pt-12 pb-[120px] max-w-[560px] mx-auto">
+      <section className="px-5 pt-12 pb-[140px] max-w-[560px] mx-auto">
         <motion.p
           data-testid="hero-eyebrow"
           initial={{ opacity: 0, y: 10 }}
@@ -74,10 +67,11 @@ export default function HeroPage() {
         </motion.h1>
 
         <motion.p
+          data-testid="hero-sub"
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-5 text-[17px] leading-[1.55] text-ivory/85 max-w-[34ch]"
+          className="mt-5 text-[16.5px] leading-[1.55] text-ivory/85"
         >
           {pick(ui.hero.sub, lang)}
         </motion.p>
@@ -86,16 +80,16 @@ export default function HeroPage() {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.42 }}
-          className="mt-9 flex justify-start"
+          className="mt-8 flex justify-start"
         >
-          <OrbitMark className="w-[210px] h-[210px]" />
+          <OrbitMark className="w-[200px] h-[200px]" />
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.55 }}
-          className="mt-9 flex flex-col gap-3"
+          className="mt-8 flex flex-col gap-3"
         >
           <Link
             data-testid="hero-cta"
@@ -108,22 +102,25 @@ export default function HeroPage() {
           <p data-testid="hero-micro" className="text-[12.5px] text-ivory/55 leading-[1.55] mt-1">
             {pick(ui.hero.micro, lang)}
           </p>
+          <p data-testid="hero-trust" className="text-[12px] text-gold/70 leading-[1.55]">
+            {pick(ui.hero.trust, lang)}
+          </p>
         </motion.div>
 
-        <div className="mt-12 divider-gold" />
+        <div className="mt-10 divider-gold" />
 
         <motion.p
           data-testid="hero-safety-note"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2, delay: 0.9 }}
-          className="mt-6 text-[12.5px] text-ivory/45 leading-[1.6]"
+          className="mt-5 text-[12.5px] text-ivory/45 leading-[1.6]"
         >
           {pick(ui.hero.note, lang)}
         </motion.p>
       </section>
 
-      <footer className="px-5 pb-8 max-w-[560px] mx-auto flex flex-wrap gap-x-5 gap-y-2 text-[12px] text-ivory/45">
+      <footer className="px-5 pb-8 pb-safe-extra max-w-[560px] mx-auto flex flex-wrap gap-x-5 gap-y-2 text-[12px] text-ivory/45">
         <Link href="/privacy/" data-testid="footer-privacy" className="hover:text-gold transition-colors">{pick(ui.legal.privacy, lang)}</Link>
         <Link href="/terms/" data-testid="footer-terms" className="hover:text-gold transition-colors">{pick(ui.legal.terms, lang)}</Link>
         <Link href="/disclaimer/" data-testid="footer-disclaimer" className="hover:text-gold transition-colors">{pick(ui.legal.disclaimer, lang)}</Link>

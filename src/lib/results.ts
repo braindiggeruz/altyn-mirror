@@ -8,12 +8,24 @@ export const RESULTS: Record<ResultKey, ResultData> = {
     title: { ru: 'Маятник тепла', uz: 'Iliqlik mayatnigi' },
     description: {
       ru: 'В ответах чаще проявился сценарий «Маятник тепла». Здесь круг держится не на ровности, а на моментах, когда тепло возвращается и снова включает надежду. Важно посмотреть, где внимание начинает заменять ясность.',
-      uz: 'Javoblarda ko‘proq «Iliqlik mayatnigi» stsenariysi namoyon bo‘ldi. Bu yerda aylana tekislik emas, balki iliqlik qaytib, umidni yana yoqib yuboradigan lahzalarga tayanadi. Diqqat aniqlikni qayerda almashtira boshlashini ko‘rib chiqish muhim.',
+      uz: 'Javoblarda ko‘proq «Iliqlik mayatnigi» stsenariysi namoyon bo‘ldi. Bu yerda aylana tekislik emas, balki iliqlik qaytib, umidni yana yoqib yuboradigan lahzalarga tayanadi.',
     },
     map: {
       start: { ru: 'через тепло и быстрое сближение', uz: 'iliqlik va tez yaqinlashish orqali' },
       hold:  { ru: 'редкие моменты возвращения', uz: 'qaytishning kam uchraydigan lahzalari' },
       loop:  { ru: 'когда тёплый эпизод снова запускает круг', uz: 'iliq lahza yana aylanani ishga tushirganda' },
+    },
+    markers: {
+      ru: [
+        'Тепло возвращается волнами',
+        'Редкие моменты становятся сильными',
+        'Круг запускается через надежду',
+      ],
+      uz: [
+        'Iliqlik to‘lqinlar bilan qaytadi',
+        'Kamdan-kam lahzalar kuchli bo‘ladi',
+        'Aylana umid orqali ishga tushadi',
+      ],
     },
     keyQuestion: {
       ru: 'Где именно редкое тепло становится сильнее фактов?',
@@ -26,12 +38,24 @@ export const RESULTS: Record<ResultKey, ResultData> = {
     title: { ru: 'Туман без ясности', uz: 'Aniqliksiz tuman' },
     description: {
       ru: 'В ответах чаще проявился сценарий «Туман без ясности». Здесь напряжение рождается не из резкого конфликта, а из неопределённости. Связь как будто есть, но опоры у неё мало.',
-      uz: 'Javoblarda ko‘proq «Aniqliksiz tuman» stsenariysi namoyon bo‘ldi. Bu yerda taranglik keskin to‘qnashuvdan emas, noaniqlikdan tug‘iladi. Aloqa go‘yo bor, lekin uning tayanchi kam.',
+      uz: 'Javoblarda ko‘proq «Aniqliksiz tuman» stsenariysi namoyon bo‘ldi. Bu yerda taranglik keskin to‘qnashuvdan emas, noaniqlikdan tug‘iladi.',
     },
     map: {
       start: { ru: 'спокойно, но без полной формы', uz: 'tinch, lekin to‘liq shaklsiz' },
       hold:  { ru: 'надежда, что скоро станет понятнее', uz: 'tez orada tushunarli bo‘lishiga umid' },
       loop:  { ru: 'когда факты смешиваются с ожиданием', uz: 'faktlar kutish bilan aralashganda' },
+    },
+    markers: {
+      ru: [
+        'Связь есть, но формы мало',
+        'Ожидание смешивается с фактами',
+        'Неопределённость держит внимание',
+      ],
+      uz: [
+        'Aloqa bor, lekin shakl kam',
+        'Kutish faktlar bilan aralashadi',
+        'Noaniqlik e’tiborni ushlab turadi',
+      ],
     },
     keyQuestion: {
       ru: 'Где заканчиваются факты и начинается ожидание?',
@@ -44,12 +68,24 @@ export const RESULTS: Record<ResultKey, ResultData> = {
     title: { ru: 'Догоняю ответ', uz: 'Javob ortidan quvaman' },
     description: {
       ru: 'В ответах чаще проявился сценарий «Догоняю ответ». Когда история становится неясной, появляется желание быстро вернуть определённость. Круг может держаться на попытке получить ясность там, где её пока не дают.',
-      uz: 'Javoblarda ko‘proq «Javob ortidan quvaman» stsenariysi namoyon bo‘ldi. Hikoya noaniq bo‘lganda, tezda aniqlikni qaytarish istagi paydo bo‘ladi. Aylana hali aniqlik berilmagan joyda uni olishga urinishga tayanishi mumkin.',
+      uz: 'Javoblarda ko‘proq «Javob ortidan quvaman» stsenariysi namoyon bo‘ldi. Hikoya noaniq bo‘lganda, tezda aniqlikni qaytarish istagi paydo bo‘ladi.',
     },
     map: {
       start: { ru: 'через желание понять, что происходит', uz: 'nima sodir bo‘layotganini tushunish istagi orqali' },
       hold:  { ru: 'потребность в прямом ответе', uz: 'to‘g‘ridan-to‘g‘ri javobga ehtiyoj' },
       loop:  { ru: 'когда контакт превращается в попытку всё прояснить', uz: 'aloqa hammasini oydinlashtirish urinishiga aylanganda' },
+    },
+    markers: {
+      ru: [
+        'Хочется расставить точки',
+        'Контакт превращается в поиск ясности',
+        'Ответ становится центром истории',
+      ],
+      uz: [
+        'Nuqta qo‘yish istagi paydo bo‘ladi',
+        'Aloqa aniqlik izlashga aylanadi',
+        'Javob hikoyaning markaziga aylanadi',
+      ],
     },
     keyQuestion: {
       ru: 'Где контакт превращается в погоню за ответом?',
@@ -62,12 +98,24 @@ export const RESULTS: Record<ResultKey, ResultData> = {
     title: { ru: 'Искра и пауза', uz: 'Uchqun va pauza' },
     description: {
       ru: 'В ответах чаще проявился сценарий «Искра и пауза». В начале много энергии, но затем темп меняется слишком резко. Круг может держаться на памяти о старте, а не на устойчивом движении дальше.',
-      uz: 'Javoblarda ko‘proq «Uchqun va pauza» stsenariysi namoyon bo‘ldi. Boshida energiya ko‘p, lekin keyin temp juda keskin o‘zgaradi. Aylana barqaror harakatga emas, balki boshlanish xotirasiga tayanishi mumkin.',
+      uz: 'Javoblarda ko‘proq «Uchqun va pauza» stsenariysi namoyon bo‘ldi. Boshida energiya ko‘p, lekin keyin temp juda keskin o‘zgaradi.',
     },
     map: {
       start: { ru: 'ярко, быстро, с сильным ощущением возможности', uz: 'yorqin, tez, kuchli imkoniyat tuyg‘usi bilan' },
       hold:  { ru: 'память о красивом начале', uz: 'chiroyli boshlanish xotirasi' },
       loop:  { ru: 'когда после вспышки наступает пауза', uz: 'chaqnashdan keyin pauza kelganda' },
+    },
+    markers: {
+      ru: [
+        'Много энергии в начале',
+        'Резкое изменение темпа',
+        'Память о старте сильнее текущих фактов',
+      ],
+      uz: [
+        'Boshida energiya ko‘p',
+        'Temp keskin o‘zgaradi',
+        'Boshlanish xotirasi joriy faktlardan kuchliroq',
+      ],
     },
     keyQuestion: {
       ru: 'Что именно в начале стало внутренней точкой возврата?',
@@ -80,12 +128,24 @@ export const RESULTS: Record<ResultKey, ResultData> = {
     title: { ru: 'Закрытая дверь', uz: 'Yopiq eshik' },
     description: {
       ru: 'В ответах чаще проявился сценарий «Закрытая дверь». Здесь может быть ощущение присутствия без настоящей ясности: человек рядом фрагментами, но важная часть истории остаётся закрытой.',
-      uz: 'Javoblarda ko‘proq «Yopiq eshik» stsenariysi namoyon bo‘ldi. Bu yerda haqiqiy aniqliksiz mavjudlik tuyg‘usi bo‘lishi mumkin: inson parchalarda yonda, lekin hikoyaning muhim qismi yopiq qoladi.',
+      uz: 'Javoblarda ko‘proq «Yopiq eshik» stsenariysi namoyon bo‘ldi. Bu yerda haqiqiy aniqliksiz mavjudlik tuyg‘usi bo‘lishi mumkin.',
     },
     map: {
       start: { ru: 'через дистанцию и частичное сближение', uz: 'masofa va qisman yaqinlashish orqali' },
       hold:  { ru: 'ощущение, что дверь ещё может открыться', uz: 'eshik hali ochilishi mumkin degan tuyg‘u' },
       loop:  { ru: 'когда близость остаётся фрагментами', uz: 'yaqinlik parchalarda qolganda' },
+    },
+    markers: {
+      ru: [
+        'Есть фрагменты близости',
+        'Важная часть остаётся закрытой',
+        'Ожидание входа держит сценарий',
+      ],
+      uz: [
+        'Yaqinlikning parchalari bor',
+        'Muhim qism yopiq qoladi',
+        'Kirishni kutish stsenariyni ushlab turadi',
+      ],
     },
     keyQuestion: {
       ru: 'Где вы ждёте входа туда, где дверь пока не открывают?',

@@ -22,13 +22,18 @@ function fbq(...args: unknown[]): void {
 
 export const META_PIXEL_ID = PIXEL_ID;
 
-// Standard events (no Lead on homepage)
 export const track = {
   viewContent(): void {
     fbq('track', 'ViewContent', { content_name: 'ALTYN Mirror Landing' });
   },
   startMirror(): void {
     fbq('trackCustom', 'StartMirror');
+  },
+  mirrorIntroViewed(): void {
+    fbq('trackCustom', 'MirrorIntroViewed');
+  },
+  liveMapNodeAdded(scene_index: number, result_key: string): void {
+    fbq('trackCustom', 'LiveMapNodeAdded', { scene_index, result_key });
   },
   answerScene(scene_index: number, answer_id: string, result_key: string): void {
     fbq('trackCustom', 'AnswerScene', { scene_index, answer_id, result_key });
@@ -38,6 +43,18 @@ export const track = {
   },
   resultViewed(result_type: string, secondary_result: string): void {
     fbq('trackCustom', 'ResultViewed', { result_type, secondary_result });
+  },
+  resultMapViewed(result_type: string, secondary_result: string): void {
+    fbq('trackCustom', 'ResultMapViewed', { result_type, secondary_result });
+  },
+  saveCardClicked(result_type: string): void {
+    fbq('trackCustom', 'SaveCardClicked', { result_type });
+  },
+  saveCardSuccess(result_type: string): void {
+    fbq('trackCustom', 'SaveCardSuccess', { result_type });
+  },
+  telegramModalOpened(result_type: string): void {
+    fbq('trackCustom', 'TelegramModalOpened', { result_type });
   },
   ctaClick(result_type: string): void {
     fbq('trackCustom', 'CTA_Click', { result_type });

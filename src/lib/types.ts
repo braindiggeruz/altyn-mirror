@@ -10,14 +10,15 @@ export type AnswerOption = {
 export type Scene = {
   index: number;         // 1..7
   title: { ru: string; uz: string };
+  subtitle: { ru: string; uz: string };
   question: { ru: string; uz: string };
   options: AnswerOption[];
 };
 
 export type ResultMap = {
   start: { ru: string; uz: string };
-  hold: { ru: string; uz: string };
-  loop: { ru: string; uz: string };
+  hold:  { ru: string; uz: string };
+  loop:  { ru: string; uz: string };
 };
 
 export type ResultData = {
@@ -25,6 +26,7 @@ export type ResultData = {
   title: { ru: string; uz: string };
   description: { ru: string; uz: string };
   map: ResultMap;
+  markers: { ru: string[]; uz: string[] };
   keyQuestion: { ru: string; uz: string };
   cta: { ru: string; uz: string };
 };

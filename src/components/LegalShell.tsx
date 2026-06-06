@@ -9,7 +9,7 @@ export function LegalShell({ title, children, testid }: { title: string; childre
   const [lang, setLang] = useState<Lang>('ru');
   useEffect(() => setLang(getStoredLang()), []);
   return (
-    <main className="relative min-h-[100dvh] overflow-hidden" data-testid={testid}>
+    <main className="relative min-h-[100dvh] overflow-hidden pb-safe" data-testid={testid}>
       <header className="px-5 pt-5 flex items-center justify-between max-w-[680px] mx-auto">
         <Link href="/" className="serif text-[18px] tracking-[0.08em] text-ivory">
           <span className="text-gold">ALTYN</span> Mirror
@@ -24,7 +24,7 @@ export function LegalShell({ title, children, testid }: { title: string; childre
           {children}
         </div>
       </article>
-      <footer className="px-5 pb-8 max-w-[680px] mx-auto flex flex-wrap gap-x-5 gap-y-2 text-[12px] text-ivory/45">
+      <footer className="px-5 pb-8 pb-safe-extra max-w-[680px] mx-auto flex flex-wrap gap-x-5 gap-y-2 text-[12px] text-ivory/45">
         <Link href="/privacy/" className="hover:text-gold transition-colors">Privacy</Link>
         <Link href="/terms/" className="hover:text-gold transition-colors">Terms</Link>
         <Link href="/disclaimer/" className="hover:text-gold transition-colors">Disclaimer</Link>

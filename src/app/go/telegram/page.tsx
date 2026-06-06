@@ -47,14 +47,14 @@ export default function TelegramBridge() {
   const tgUrl = useMemo(() => `https://t.me/${bot}?start=${token || 'am_no_token'}`, [bot, token]);
 
   return (
-    <main className="relative min-h-[100dvh] overflow-hidden">
+    <main className="relative min-h-[100dvh] overflow-hidden pb-safe">
       <header className="px-5 pt-5 flex items-center justify-between max-w-[560px] mx-auto">
         <Link href="/" className="serif text-[18px] tracking-[0.08em] text-ivory">
           <span className="text-gold">ALTYN</span> Mirror
         </Link>
       </header>
 
-      <section className="px-5 pt-12 pb-12 max-w-[560px] mx-auto text-center">
+      <section className="px-5 pt-12 pb-[100px] pb-safe-extra max-w-[560px] mx-auto text-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }}
           className="mx-auto w-[120px] h-[120px] rounded-full mb-7"

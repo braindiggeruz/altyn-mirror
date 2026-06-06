@@ -4,10 +4,11 @@ export const SCENES: Scene[] = [
   {
     index: 1,
     title: { ru: 'Начало', uz: 'Boshlanish' },
-    question: {
-      ru: 'Как чаще начинается история?',
-      uz: 'Hikoya odatda qanday boshlanadi?',
+    subtitle: {
+      ru: 'У каждого круга есть первая искра.',
+      uz: 'Har bir aylananing birinchi uchquni bor.',
     },
+    question: { ru: 'Как чаще начинается история?', uz: 'Hikoya odatda qanday boshlanadi?' },
     options: [
       { id: 's1a', result: 'mayatnik', text: { ru: 'Быстро появляется тепло и интерес', uz: 'Tezda iliqlik va qiziqish paydo bo‘ladi' } },
       { id: 's1b', result: 'tuman',    text: { ru: 'Всё спокойно, но не хватает ясности', uz: 'Hammasi tinch, lekin aniqlik yetishmaydi' } },
@@ -18,6 +19,10 @@ export const SCENES: Scene[] = [
   {
     index: 2,
     title: { ru: 'Первый туман', uz: 'Birinchi tuman' },
+    subtitle: {
+      ru: 'Не всегда всё ломается резко. Иногда просто исчезает форма.',
+      uz: 'Hammasi har doim keskin buzilavermaydi. Ba’zan oddiygina shakl yo‘qoladi.',
+    },
     question: { ru: 'Где обычно становится неясно?', uz: 'Odatda qayerda noaniq bo‘ladi?' },
     options: [
       { id: 's2a', result: 'mayatnik',  text: { ru: 'Когда человек то появляется, то исчезает', uz: 'Inson goh paydo bo‘lib, goh yo‘qolganda' } },
@@ -29,6 +34,10 @@ export const SCENES: Scene[] = [
   {
     index: 3,
     title: { ru: 'Что удерживает', uz: 'Nima ushlab turadi' },
+    subtitle: {
+      ru: 'Круг держится на том, что возвращает внимание.',
+      uz: 'Aylana e’tiborni qaytaradigan narsaga tayanadi.',
+    },
     question: { ru: 'Что чаще всего не даёт выйти из круга?', uz: 'Aylanadan chiqishga nima ko‘proq xalaqit beradi?' },
     options: [
       { id: 's3a', result: 'mayatnik',  text: { ru: 'Редкие тёплые моменты', uz: 'Kamdan-kam iliq daqiqalar' } },
@@ -40,6 +49,10 @@ export const SCENES: Scene[] = [
   {
     index: 4,
     title: { ru: 'Ваше движение', uz: 'Sizning harakatingiz' },
+    subtitle: {
+      ru: 'Важен не только другой человек, но и движение внутри самой истории.',
+      uz: 'Faqat boshqa odamgina emas, hikoya ichidagi harakat ham muhim.',
+    },
     question: { ru: 'Что обычно хочется сделать в этот момент?', uz: 'Bu daqiqada odatda nima qilgingiz keladi?' },
     options: [
       { id: 's4a', result: 'mayatnik',  text: { ru: 'Подождать, вдруг тепло вернётся', uz: 'Kutib turish, ehtimol iliqlik qaytadi' } },
@@ -51,6 +64,10 @@ export const SCENES: Scene[] = [
   {
     index: 5,
     title: { ru: 'Повтор', uz: 'Takror' },
+    subtitle: {
+      ru: 'Повтор начинается не с нуля — он включается знакомым сигналом.',
+      uz: 'Takror noldan boshlanmaydi — u tanish signal bilan ishga tushadi.',
+    },
     question: { ru: 'Как круг чаще запускается снова?', uz: 'Aylana qayta qanday boshlanadi?' },
     options: [
       { id: 's5a', result: 'mayatnik',  text: { ru: 'Через новый тёплый эпизод', uz: 'Yangi iliq lahza orqali' } },
@@ -62,6 +79,10 @@ export const SCENES: Scene[] = [
   {
     index: 6,
     title: { ru: 'Самая сильная точка', uz: 'Eng kuchli nuqta' },
+    subtitle: {
+      ru: 'Обычно сильнее всего держит не вся история, а один её узел.',
+      uz: 'Odatda butun hikoya emas, balki uning bir tuguni eng kuchli ushlab turadi.',
+    },
     question: { ru: 'Что больше всего цепляет в этой истории?', uz: 'Bu hikoyada eng ko‘p nima ushlab oladi?' },
     options: [
       { id: 's6a', result: 'mayatnik',  text: { ru: 'Контраст: то близко, то холодно', uz: 'Kontrast: goh yaqin, goh sovuq' } },
@@ -72,7 +93,11 @@ export const SCENES: Scene[] = [
   },
   {
     index: 7,
-    title: { ru: 'Что хочется увидеть сейчас', uz: 'Hozir nimani ko‘rishni xohlaysiz' },
+    title: { ru: 'Точка ясности', uz: 'Aniqlik nuqtasi' },
+    subtitle: {
+      ru: 'Финальный маркер покажет, что стоит разложить глубже.',
+      uz: 'Yakuniy marker chuqurroq tahlil qilish kerak bo‘lgan narsani ko‘rsatadi.',
+    },
     question: { ru: 'Что было бы полезнее всего разложить?', uz: 'Nimani tahlil qilish foydaliroq bo‘lardi?' },
     options: [
       { id: 's7a', result: 'mayatnik',  text: { ru: 'Где именно возвращается круг', uz: 'Aylana aynan qayerda qaytadi' } },
