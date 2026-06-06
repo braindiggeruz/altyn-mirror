@@ -21,6 +21,11 @@ export type ResultMap = {
   loop:  { ru: string; uz: string };
 };
 
+export type SessionPlanStep = {
+  time: string;
+  text: string;
+};
+
 export type ResultData = {
   key: ResultKey;
   title: { ru: string; uz: string };
@@ -30,6 +35,9 @@ export type ResultData = {
   keyQuestion: { ru: string; uz: string };
   cta: { ru: string; uz: string };
   // V3: Scenario Passport additions
-  bring:     { ru: string[]; uz: string[] };  // “Что взять на личный разбор” — 3 коротких пункта
-  firstStep: { ru: string; uz: string };      // “Первый спокойный шаг”
+  bring:     { ru: string[]; uz: string[] };
+  firstStep: { ru: string; uz: string };
+  // V5: per-scenario prep questions + session plan
+  prepQuestions: { ru: string[]; uz: string[] };
+  sessionPlan:   { ru: SessionPlanStep[]; uz: SessionPlanStep[] };
 };

@@ -19,6 +19,8 @@ export default function TelegramBridge() {
   const [token, setToken] = useState<string>('');
   const [resultType, setResultType] = useState<ResultKey | ''>('');
   const [secondaryType, setSecondaryType] = useState<ResultKey | ''>('');
+  const [showFallback, setShowFallback] = useState(false);
+  const [copyMsg, setCopyMsg] = useState<'' | 'ok' | 'fail'>('');
 
   useEffect(() => {
     setMounted(true);
@@ -43,19 +45,9 @@ export default function TelegramBridge() {
     track.bridgeViewed(rt || '', !!tk);
     track.telegramOpenAttempt(rt || '', !!tk);
 
-    /*
-     * Lead-fallback hook — DISABLED by default.
-     * Enable only when bot/CAPI confirmation is not yet wired AND owner approves.
-     * Flip flag NEXT_PUBLIC_ENABLE_BRIDGE_LEAD=1 in Cloudflare Pages env to activate.
-     *
-     *   if (process.env.NEXT_PUBLIC_ENABLE_BRIDGE_LEAD === '1') {
-     *     setTimeout(() => {
-     *       if (typeof window !== 'undefined' && typeof (window as any).fbq === 'function') {
-     *         (window as any).fbq('track', 'Lead', { content_name: 'altyn-mirror-bridge' });
-     *       }
-     *     }, 3500);
-     *   }
-     */
+    // V5: copy-link fallback appears after 3.5s
+    const timer = window.setTimeout(() => setShowFallback(true), 3500);
+    return () => window.clearTimeout(timer);
   }, []);
 
   const bot = process.env.NEXT_PUBLIC_TELEGRAM_BOT || 'altyntherapybot';
@@ -65,10 +57,31 @@ export default function TelegramBridge() {
   const data = hasMap ? RESULTS[resultType as ResultKey] : null;
   const secondaryData = secondaryType ? RESULTS[secondaryType] : null;
 
-  // pre-mount placeholder to avoid hydration mismatch
-  if (!mounted) {
-    return <main className="min-h-[100dvh]" />;
+  async function onCopy() {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(tgUrl);
+      } else {
+        // Fallback: temporary textarea
+        const ta = document.createElement('textarea');
+        ta.value = tgUrl;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      setCopyMsg('ok');
+      window.setTimeout(() => setCopyMsg(''), 2400);
+    } catch {
+      setCopyMsg('fail');
+      window.setTimeout(() => setCopyMsg(''), 3000);
+    }
   }
+
+  // pre-mount placeholder
+  if (!mounted) return <main className="min-h-[100dvh]" />;
 
   return (
     <main className="relative min-h-[100dvh] overflow-hidden pb-safe">
@@ -91,6 +104,31 @@ export default function TelegramBridge() {
           />
         ) : (
           <GenericBridge lang={lang} tgUrl={tgUrl} hasToken={!!token} resultType={resultType || ''} />
+        )}
+
+        {/* V5: Copy-link fallback after 3.5s */}
+        {showFallback && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45 }}
+            className="mt-6 text-center"
+            data-testid="bridge-copy-block"
+          >
+            <p className="text-[13px] text-ivory/65">{pick(ui.bridge.notOpened, lang)}</p>
+            <button
+              onClick={onCopy}
+              data-testid="bridge-copy-link"
+              className="btn-ghost mt-2 text-[14px]"
+            >
+              {pick(ui.bridge.copyLink, lang)}
+            </button>
+            {copyMsg === 'ok' && (
+              <p data-testid="bridge-copy-ok" className="mt-2 text-[12.5px] text-gold/90">{pick(ui.bridge.copyOk, lang)}</p>
+            )}
+            {copyMsg === 'fail' && (
+              <p data-testid="bridge-copy-fail" className="mt-2 text-[12px] text-bordo-400">{pick(ui.bridge.copyFail, lang)}</p>
+            )}
+          </motion.div>
         )}
 
         <div className="mt-10 divider-gold" />
@@ -133,7 +171,6 @@ function PersonalBridge({
         {pick(ui.bridge.titlePersonal, lang)}
       </motion.h1>
 
-      {/* Promise badge */}
       <motion.p
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.22 }}
         className="mt-4 text-[14.5px] text-ivory/80 leading-[1.55] text-center"
@@ -142,7 +179,6 @@ function PersonalBridge({
         {pick(ui.bridge.promise, lang)}
       </motion.p>
 
-      {/* Mini scenario card (the actual personalization) */}
       <motion.section
         initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.32 }}
         className="mt-6 card card-gold-edge p-5"
@@ -169,7 +205,6 @@ function PersonalBridge({
         </div>
       </motion.section>
 
-      {/* What happens after click */}
       <motion.section
         initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.45 }}
         className="mt-6"
@@ -186,7 +221,6 @@ function PersonalBridge({
         </ol>
       </motion.section>
 
-      {/* CTA */}
       <motion.div
         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.55 }}
         className="mt-7 flex flex-col gap-3"

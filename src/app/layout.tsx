@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Manrope } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { META_PIXEL_ID } from '@/lib/tracking';
+import { UtmCapture } from '@/components/UtmCapture';
 
 const serif = Cormorant_Garamond({
   subsets: ['latin', 'cyrillic'],
@@ -79,6 +80,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <div className="grain" aria-hidden="true" />
         <div className="vignette" aria-hidden="true" />
+        <UtmCapture />
         <div className="relative z-10">{children}</div>
       </body>
     </html>

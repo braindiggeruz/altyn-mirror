@@ -63,7 +63,7 @@ export const track = {
     fbq('trackCustom', 'TelegramOpenAttempt', { result_type, token_present });
   },
 
-  // === V3 drop-off & engagement events (all Meta-safe; custom only) ===
+  // === V3 drop-off & engagement events ===
   scenarioPassportViewed(result_type: string): void {
     fbq('trackCustom', 'ScenarioPassportViewed', { result_type });
   },
@@ -77,22 +77,21 @@ export const track = {
     fbq('trackCustom', 'BridgeViewed', { result_type, token_present });
   },
 
+  // === V5 events ===
+  meaningBlockViewed(result_type: string): void {
+    fbq('trackCustom', 'MeaningBlockViewed', { result_type });
+  },
+  personalPrepViewed(result_type: string): void {
+    fbq('trackCustom', 'PersonalPrepViewed', { result_type });
+  },
+  personalizedOfferViewed(result_type: string): void {
+    fbq('trackCustom', 'PersonalizedOfferViewed', { result_type });
+  },
+
   /**
    * Lead is intentionally NOT fired anywhere in this app.
-   *
-   * PREFERRED architecture:
-   *   Telegram bot receives /start am_<token> → backend → Meta CAPI sends `Lead`
-   *   with hashed contact (em/ph) + click_id, attributed to the original fbclid/UTMs
-   *   stored on the bridge.
-   *
-   * Fallback (DISABLED for now — flip the env flag when ready):
-   *   On /go/telegram, after the user actually clicks the Telegram button and
-   *   ~3.5s pass, fire fbq('track','Lead'). Do NOT call this on PageView.
-   *
-   *   Example:
-   *     if (process.env.NEXT_PUBLIC_ENABLE_BRIDGE_LEAD === '1') {
-   *       setTimeout(() => fbq('track','Lead', { content_name: 'altyn-mirror-bridge' }), 3500);
-   *     }
+   * Preferred: Telegram bot receives /start am_<token> → backend → Meta CAPI sends Lead.
+   * Fallback (DISABLED) gated by NEXT_PUBLIC_ENABLE_BRIDGE_LEAD flag.
    */
   leadHook_PLACEHOLDER(): void {
     // intentionally empty

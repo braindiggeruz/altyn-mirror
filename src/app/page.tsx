@@ -8,10 +8,8 @@ import type { Lang } from '@/lib/types';
 import { getStoredLang, setStoredLang } from '@/lib/lang';
 import { LangSwitcher } from '@/components/LangSwitcher';
 import { OrbitMark } from '@/components/OrbitMark';
+import { ReturningChip } from '@/components/ReturningChip';
 import { track } from '@/lib/tracking';
-import { readUtmFromUrl } from '@/lib/utm';
-import { loadSession, saveSession, makeSessionId } from '@/lib/storage';
-import type { SessionData } from '@/lib/storage';
 
 export default function HeroPage() {
   const [lang, setLang] = useState<Lang>('ru');
@@ -20,16 +18,6 @@ export default function HeroPage() {
   useEffect(() => {
     setMounted(true);
     setLang(getStoredLang());
-
-    const utm = readUtmFromUrl();
-    const existing = loadSession();
-    const session: SessionData = existing ?? {
-      session_id: makeSessionId(),
-      lang: getStoredLang(),
-      answer_path: [],
-      created_at: new Date().toISOString(),
-    };
-    saveSession({ ...session, ...utm });
     track.viewContent();
   }, []);
 
@@ -44,7 +32,14 @@ export default function HeroPage() {
         {mounted && <LangSwitcher lang={lang} onChange={onLangChange} />}
       </header>
 
-      <section className="px-5 pt-12 pb-[140px] max-w-[560px] mx-auto">
+      <section className="px-5 pt-10 pb-[140px] max-w-[560px] mx-auto">
+        {/* Returning chip (V4) — visible only if user already has completed map + token */}
+        {mounted && (
+          <div className="mb-5">
+            <ReturningChip lang={lang} />
+          </div>
+        )}
+
         <motion.p
           data-testid="hero-eyebrow"
           initial={{ opacity: 0, y: 10 }}
@@ -60,7 +55,7 @@ export default function HeroPage() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-          className="serif mt-5 text-[40px] leading-[1.04] text-ivory"
+          className="serif mt-4 text-[38px] leading-[1.05] text-ivory"
           style={{ fontWeight: 500 }}
         >
           {pick(ui.hero.headline, lang)}
@@ -71,25 +66,17 @@ export default function HeroPage() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-5 text-[16.5px] leading-[1.55] text-ivory/85"
+          className="mt-4 text-[16.5px] leading-[1.55] text-ivory/85"
         >
           {pick(ui.hero.sub, lang)}
         </motion.p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.42 }}
-          className="mt-8 flex justify-start"
-        >
-          <OrbitMark className="w-[200px] h-[200px]" />
-        </motion.div>
-
+        {/* CTA above orbit on mobile, so it stays above the fold on 360×800. */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.55 }}
-          className="mt-8 flex flex-col gap-3"
+          transition={{ duration: 0.7, delay: 0.42 }}
+          className="mt-6 flex flex-col gap-2.5"
         >
           <Link
             data-testid="hero-cta"
@@ -105,6 +92,16 @@ export default function HeroPage() {
           <p data-testid="hero-trust" className="text-[12px] text-gold/70 leading-[1.55]">
             {pick(ui.hero.trust, lang)}
           </p>
+        </motion.div>
+
+        {/* Orbit — smaller on mobile, drops below CTA. */}
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.55 }}
+          className="mt-8 flex justify-center sm:justify-start"
+        >
+          <OrbitMark className="w-[150px] h-[150px] sm:w-[200px] sm:h-[200px]" />
         </motion.div>
 
         <div className="mt-10 divider-gold" />

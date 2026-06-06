@@ -14,6 +14,7 @@ import { newToken } from '@/lib/token';
 import { OrbitMark } from '@/components/OrbitMark';
 import { ShareCard } from '@/components/ShareCard';
 import { TelegramReadyModal } from '@/components/TelegramReadyModal';
+import { StickyTelegramCta } from '@/components/StickyTelegramCta';
 
 const VALID = new Set<ResultKey>(RESULT_KEYS);
 
@@ -23,6 +24,7 @@ export default function ResultClient({ slug }: { slug: string }) {
   const [session, setSession] = useState<SessionData | null>(null);
   const [savingState, setSavingState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [modalOpen, setModalOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const primary: ResultKey = slugKey;
@@ -33,9 +35,11 @@ export default function ResultClient({ slug }: { slug: string }) {
   const data = RESULTS[primary];
   const secondaryData = secondary ? RESULTS[secondary] : null;
   const markers = data.markers[lang] || data.markers.ru;
-  const bring = data.bring[lang] || data.bring.ru;
-  const sessionSteps = ui.result.sessionSteps[lang];
+  const prepQuestions = data.prepQuestions[lang] || data.prepQuestions.ru;
+  const sessionPlan = data.sessionPlan[lang] || data.sessionPlan.ru;
   const reassureChips = ui.result.reassureChips[lang];
+  const meaningIsItems = ui.result.meaningIsItems[lang];
+  const meaningIsNotItems = ui.result.meaningIsNotItems[lang];
 
   useEffect(() => {
     const l = getStoredLang();
@@ -53,13 +57,22 @@ export default function ResultClient({ slug }: { slug: string }) {
       saveSession(s);
     }
     setSession(s);
+
+    // Mobile detection for single-click Telegram (V4)
+    if (typeof window !== 'undefined') {
+      const mob = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 640;
+      setIsMobile(mob);
+    }
+
     track.resultViewed(primary, s.secondary_result || '');
     track.resultMapViewed(primary, s.secondary_result || '');
     track.scenarioPassportViewed(primary);
 
-    // Session-preview gets its own event once user has had a beat to see the page.
-    const t = window.setTimeout(() => track.sessionPreviewViewed(primary), 1800);
-    return () => window.clearTimeout(t);
+    const t1 = window.setTimeout(() => track.meaningBlockViewed(primary), 1200);
+    const t2 = window.setTimeout(() => track.personalPrepViewed(primary), 1800);
+    const t3 = window.setTimeout(() => track.personalizedOfferViewed(primary), 2400);
+    const t4 = window.setTimeout(() => track.sessionPreviewViewed(primary), 2600);
+    return () => { window.clearTimeout(t1); window.clearTimeout(t2); window.clearTimeout(t3); window.clearTimeout(t4); };
   }, [primary]);
 
   const tokenShort = (session?.token || '').replace(/^am_/, '').slice(0, 10) || '——';
@@ -80,10 +93,18 @@ export default function ResultClient({ slug }: { slug: string }) {
     return `https://t.me/${bot}?start=${session?.token || 'am_no_token'}`;
   }, [session?.token]);
 
-  function openTgModal() {
-    track.telegramModalOpened(primary);
+  // V4 — Single-click Telegram on mobile: if token exists, open t.me directly.
+  // Desktop / no-token → modal (extra confirmation context).
+  function onPrimaryCta(e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) {
     track.ctaClick(primary);
-    track.telegramIntentClicked(primary, 'result_primary_cta', !!session?.token);
+    track.telegramIntentClicked(primary, 'primary_cta', !!session?.token);
+    if (isMobile && session?.token) {
+      track.telegramOpenAttempt(primary, true);
+      // anchor href handles navigation
+      return;
+    }
+    e.preventDefault();
+    track.telegramModalOpened(primary);
     setModalOpen(true);
   }
 
@@ -122,24 +143,26 @@ export default function ResultClient({ slug }: { slug: string }) {
         </Link>
       </header>
 
-      <section className="px-5 pt-8 pb-16 max-w-[640px] mx-auto">
+      <section className="px-5 pt-7 pb-32 max-w-[640px] mx-auto">
+        {/* ── Above-fold zone ── */}
         <motion.p
           initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
-          className="text-[12px] uppercase tracking-[0.28em] text-gold/80">
+          className="text-[12px] uppercase tracking-[0.28em] text-gold/80"
+        >
           {pick(ui.result.eyebrow, lang)}
         </motion.p>
 
         <motion.h1
           data-testid="result-title"
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.1 }}
-          className="serif mt-4 text-[36px] leading-[1.06] text-ivory" style={{ fontWeight: 500 }}
+          className="serif mt-3 text-[34px] leading-[1.06] text-ivory" style={{ fontWeight: 500 }}
         >
           {pick(data.title, lang)}
         </motion.h1>
 
         {secondaryData && (
           <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.9, delay: 0.35 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.9, delay: 0.3 }}
             className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/30 bg-ink-800/60"
             data-testid="nuance-badge"
           >
@@ -148,22 +171,33 @@ export default function ResultClient({ slug }: { slug: string }) {
           </motion.div>
         )}
 
-        {/* Crystallization reveal */}
+        {/* V5: "Карта собрана по 7 маркерам · {date}" chip */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.0, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-7 flex justify-center"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.4 }}
+          className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/25 bg-ink-800/40"
+          data-testid="assembled-by-7-chip"
         >
-          <OrbitMark className="w-[200px] h-[200px]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-gold" style={{ boxShadow: '0 0 8px rgba(206,160,58,0.7)' }} />
+          <span className="text-[11.5px] text-gold/85">
+            {fmt(pick(ui.result.assembledBy7, lang), { date: completedDate || '—' })}
+          </span>
         </motion.div>
 
-        {/* === SCENARIO PASSPORT (premium artifact) === */}
+        {/* Orbit — reduced to ~140px on result page (V5) */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-5 flex justify-center"
+        >
+          <OrbitMark className="w-[140px] h-[140px]" />
+        </motion.div>
+
+        {/* ── Scenario Passport (no prep / no first step inside — those are now separate blocks) ── */}
         <motion.section
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.3 }}
-          className="mt-8 card card-gold-edge p-5 relative overflow-hidden"
+          className="mt-7 card card-gold-edge p-5 relative overflow-hidden"
           data-testid="scenario-passport"
         >
-          {/* corner stamp */}
           <div
             aria-hidden="true"
             className="absolute -right-6 -top-6 w-[120px] h-[120px] rounded-full opacity-25"
@@ -194,7 +228,6 @@ export default function ResultClient({ slug }: { slug: string }) {
             </div>
           </div>
 
-          {/* 3 markers */}
           <div className="mt-5 pt-4 border-t border-gold/15">
             <p className="text-[11px] uppercase tracking-[0.22em] text-gold/70">{pick(ui.result.markersHeading, lang)}</p>
             <ul className="mt-3 flex flex-col gap-2">
@@ -213,33 +246,12 @@ export default function ResultClient({ slug }: { slug: string }) {
             </ul>
           </div>
 
-          {/* What to bring */}
-          <div className="mt-5 pt-4 border-t border-gold/15" data-testid="passport-bring">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-gold/70">{pick(ui.result.bringHeading, lang)}</p>
-            <ul className="mt-3 flex flex-col gap-2">
-              {bring.map((b, i) => (
-                <li key={i} className="flex gap-3 items-start" data-testid={`bring-${i + 1}`}>
-                  <span className="mt-1.5 text-gold text-[12px]">◆</span>
-                  <span className="text-[14.5px] text-ivory/90 leading-[1.45]">{b}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* First calm step */}
-          <div className="mt-5 pt-4 border-t border-gold/15" data-testid="passport-first-step">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-gold/70">{pick(ui.result.firstStepHeading, lang)}</p>
-            <p className="serif mt-2 text-[17.5px] leading-[1.4] text-ivory italic">
-              {pick(data.firstStep, lang)}
-            </p>
-          </div>
-
           <p className="mt-5 text-[10.5px] uppercase tracking-[0.18em] text-gold/45">
             {pick(ui.result.passportStamp, lang)}
           </p>
         </motion.section>
 
-        {/* Long description (poetic copy) */}
+        {/* Poetic description */}
         <motion.p
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.55 }}
           className="mt-7 text-[15.5px] leading-[1.6] text-ivory/85"
@@ -252,40 +264,144 @@ export default function ResultClient({ slug }: { slug: string }) {
           {pick(RESULT_DISCLAIMER, lang)}
         </p>
 
-        {/* === SESSION PREVIEW (persuasive) === */}
+        {/* ── V5: «Это значит / Это не значит» ── */}
         <motion.section
           initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.6 }}
-          className="mt-9"
-          data-testid="session-preview"
+          className="mt-9 card card-gold-edge p-5"
+          data-testid="meaning-block"
         >
-          <p className="text-[11px] uppercase tracking-[0.24em] text-gold/80">{pick(ui.result.sessionTitle, lang)}</p>
-          <ol className="mt-4 flex flex-col gap-3">
-            {sessionSteps.map((s, i) => (
-              <motion.li
-                key={i}
-                initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.7 + i * 0.1 }}
-                className="card card-gold-edge px-4 py-3"
-                data-testid={`session-step-${i + 1}`}
-              >
-                <p className="text-[12.5px] uppercase tracking-[0.16em] text-gold/85">{s.t}</p>
-                <p className="mt-1 text-[14.5px] text-ivory/90 leading-[1.45]">{s.d}</p>
-              </motion.li>
-            ))}
-          </ol>
+          <p className="text-[11px] uppercase tracking-[0.24em] text-gold/80">
+            {pick(ui.result.meaningTitle, lang)}
+          </p>
+          <div className="mt-4 grid sm:grid-cols-2 gap-5">
+            <div data-testid="meaning-is">
+              <p className="text-[12px] uppercase tracking-[0.22em] text-gold">
+                {pick(ui.result.meaningIsHeading, lang)}
+              </p>
+              <ul className="mt-3 space-y-2">
+                {meaningIsItems.map((it, i) => (
+                  <li key={i} className="flex gap-2.5 items-start" data-testid={`meaning-is-${i + 1}`}>
+                    <span className="text-gold mt-1 text-[12px] shrink-0">◆</span>
+                    <span className="text-[14.5px] text-ivory/90 leading-[1.5]">{it}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div data-testid="meaning-is-not">
+              <p className="text-[12px] uppercase tracking-[0.22em] text-ivory/55">
+                {pick(ui.result.meaningIsNotHeading, lang)}
+              </p>
+              <ul className="mt-3 space-y-2">
+                {meaningIsNotItems.map((it, i) => (
+                  <li key={i} className="flex gap-2.5 items-start" data-testid={`meaning-is-not-${i + 1}`}>
+                    <span className="text-ivory/55 mt-1 text-[12px] shrink-0">◇</span>
+                    <span className="text-[14.5px] text-ivory/75 leading-[1.5]">{it}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </motion.section>
 
-        {/* === REASSURANCE CHIPS === */}
+        {/* ── V5: Personal Prep block ── */}
+        <motion.section
+          initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.7 }}
+          className="mt-9"
+          data-testid="personal-prep"
+        >
+          <p className="text-[11px] uppercase tracking-[0.24em] text-gold/80">
+            {pick(ui.result.prepTitle, lang)}
+          </p>
+          <p className="mt-2 text-[14.5px] text-ivory/75 leading-[1.55]">
+            {pick(ui.result.prepSubtitle, lang)}
+          </p>
+          <ol className="mt-4 space-y-3">
+            {prepQuestions.map((q, i) => (
+              <li
+                key={i}
+                className="card card-gold-edge px-4 py-3.5 flex gap-3 items-start"
+                data-testid={`prep-q-${i + 1}`}
+              >
+                <span className="serif text-gold text-[20px] leading-none mt-0.5 shrink-0" style={{ fontWeight: 500 }}>
+                  {i + 1}
+                </span>
+                <span className="text-[15px] text-ivory/90 leading-[1.5]">{q}</span>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-4">
+            <a
+              data-testid="prep-telegram-cta"
+              href={telegramHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => {
+                track.telegramIntentClicked(primary, 'prep_block', !!session?.token);
+                track.telegramOpenAttempt(primary, !!session?.token);
+              }}
+              className="inline-flex items-center gap-2 text-[14px] text-gold hover:text-gold-200 transition-colors"
+            >
+              <span className="underline-offset-2 underline decoration-gold/40">
+                {pick(ui.result.prepCta, lang)}
+              </span>
+            </a>
+          </div>
+        </motion.section>
+
+        {/* ── V5: First Calm Step (separate block) ── */}
+        <motion.section
+          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.78 }}
+          className="mt-9 card card-gold-edge p-5"
+          data-testid="first-calm-step"
+        >
+          <p className="text-[11px] uppercase tracking-[0.24em] text-gold/80">
+            {pick(ui.result.firstStepHeading, lang)}
+          </p>
+          <p className="serif mt-2 text-[18px] leading-[1.45] text-ivory italic">
+            {pick(data.firstStep, lang)}
+          </p>
+        </motion.section>
+
+        {/* ── V5: Personalized offer block per scenario ── */}
+        <motion.section
+          initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.86 }}
+          className="mt-9"
+          data-testid="personalized-offer"
+        >
+          <p className="text-[11px] uppercase tracking-[0.24em] text-gold/80">
+            {fmt(pick(ui.result.personalizedOfferTitle, lang), { scenario: pick(data.title, lang) })}
+          </p>
+          <ol className="mt-4 space-y-3">
+            {sessionPlan.map((s, i) => (
+              <li
+                key={i}
+                className="card card-gold-edge px-4 py-3.5"
+                data-testid={`offer-step-${i + 1}`}
+              >
+                <p className="text-[12.5px] uppercase tracking-[0.16em] text-gold/90">{s.time}</p>
+                <p className="mt-1 text-[14.5px] text-ivory/90 leading-[1.5]">{s.text}</p>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-4 text-[13px] text-ivory/70 leading-[1.55]" data-testid="offer-footer">
+            <p>{pick(ui.result.personalizedOfferFooter, lang)}</p>
+            <p className="mt-1">{pick(ui.result.personalizedOfferBooking, lang)}</p>
+            <p className="mt-2 text-[12.5px] text-ivory/55">
+              {pick(ui.result.personalizedOfferPayment, lang)}
+            </p>
+          </div>
+        </motion.section>
+
+        {/* Reassurance chips */}
         <motion.section
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.95 }}
-          className="mt-7"
+          className="mt-8"
           data-testid="reassurance-block"
         >
-          <p className="text-[11px] uppercase tracking-[0.24em] text-gold/75">{pick(ui.result.reassureTitle, lang)}</p>
-          <ul className="mt-3 flex flex-wrap gap-2">
+          <ul className="flex flex-wrap gap-2">
             {reassureChips.map((c, i) => (
               <li key={i}
-                className="px-3 py-1.5 rounded-full text-[12px] text-ivory/85 border border-gold/25 bg-ink/40"
+                className="px-3 py-1.5 rounded-full text-[12px] text-ivory/85 border border-gold/25 bg-ink-800/40"
                 data-testid={`reassure-chip-${i + 1}`}>
                 {c}
               </li>
@@ -293,33 +409,23 @@ export default function ResultClient({ slug }: { slug: string }) {
           </ul>
         </motion.section>
 
-        {/* === OFFER + CTA === */}
-        <div className="mt-9 card card-gold-edge p-5" data-testid="offer-block">
-          <p className="text-[11px] uppercase tracking-[0.22em] text-gold/75">{pick(ui.result.offerTitle, lang)}</p>
-          <p className="serif mt-2 text-[22px] leading-[1.22] text-ivory" style={{ fontWeight: 500 }}>
-            {pick(ui.result.offerLine, lang)}
-          </p>
-          <p className="mt-2 text-[13px] text-ivory/65">{pick(ui.result.offerMeta, lang)}</p>
-          <ul className="mt-4 space-y-2">
-            {ui.result.offerBullets[lang].map((b, i) => (
-              <li key={i} className="flex gap-2 text-[14px] text-ivory/85">
-                <span className="text-gold mt-1">◆</span><span>{b}</span>
-              </li>
-            ))}
-          </ul>
-
-          <p className="mt-5 text-[13.5px] text-gold/85 leading-[1.45]" data-testid="continuation-promise">
-            {pick(ui.result.continuation, lang)}
+        {/* Continuation promise + Primary CTA */}
+        <div className="mt-9">
+          <p className="text-[14px] text-gold/90 leading-[1.5]" data-testid="continuation-promise">
+            {fmt(pick(ui.result.continuationTokened, lang), { token: tokenShort })}
           </p>
 
           <div className="mt-4 flex flex-col gap-3">
-            <button
+            <a
               data-testid="result-cta-telegram"
-              onClick={openTgModal}
-              className="btn-gold text-[16px] w-full"
+              href={telegramHref}
+              target={isMobile && session?.token ? '_blank' : undefined}
+              rel={isMobile && session?.token ? 'noopener noreferrer' : undefined}
+              onClick={onPrimaryCta}
+              className="btn-gold text-[16px] w-full text-center"
             >
               {pick(ui.result.primaryCta, lang)}
-            </button>
+            </a>
             <button
               data-testid="result-save-btn"
               onClick={onSave}
@@ -355,6 +461,14 @@ export default function ResultClient({ slug }: { slug: string }) {
         <Link href="/disclaimer/" className="hover:text-gold transition-colors">{pick(ui.legal.disclaimer, lang)}</Link>
         <Link href="/contact/" className="hover:text-gold transition-colors">{pick(ui.legal.contact, lang)}</Link>
       </footer>
+
+      {/* Sticky bottom Telegram CTA (V4) */}
+      <StickyTelegramCta
+        lang={lang}
+        telegramHref={telegramHref}
+        resultType={primary}
+        tokenPresent={!!session?.token}
+      />
 
       <TelegramReadyModal
         open={modalOpen}

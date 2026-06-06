@@ -15,3 +15,17 @@ export function readUtmFromUrl(): Partial<SessionData> {
   if (fb) out.fbclid = fb;
   return out;
 }
+
+/** Merge new UTM/fbclid values onto existing session WITHOUT clobbering with empty. */
+export function mergeUtm(existing: SessionData, incoming: Partial<SessionData>): SessionData {
+  const merged: SessionData = { ...existing };
+  const target = merged as unknown as Record<string, string | undefined>;
+  const src = incoming as unknown as Record<string, string | undefined>;
+  for (const k of [...UTM_KEYS, 'fbclid'] as const) {
+    const v = src[k];
+    if (v && typeof v === 'string' && v.length > 0) {
+      target[k] = v;
+    }
+  }
+  return merged;
+}

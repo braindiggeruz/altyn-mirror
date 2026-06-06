@@ -95,9 +95,12 @@ export default function PlayPage() {
     };
     saveSession(session);
 
-    // Cinematic transition phase for ~1.4s
+    // V4: ~900ms cinematic beat (prefers-reduced-motion shortens inside MapAssembled).
     setPhase('assembled');
-    window.setTimeout(() => router.push(`/result/${primary}/`), 1500);
+    const reduce = typeof window !== 'undefined'
+      && window.matchMedia
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.setTimeout(() => router.push(`/result/${primary}/`), reduce ? 260 : 900);
   }
 
   function back() {

@@ -48,6 +48,30 @@ export const RESULTS: Record<ResultKey, ResultData> = {
       ru: 'Отделить редкий тёплый эпизод от общей картины — посмотреть на него отдельно, без круга вокруг.',
       uz: 'Kamdan-kam iliq lahzani umumiy manzaradan ajratish — uni atrofidagi aylanasiz alohida ko‘rish.',
     },
+    prepQuestions: {
+      ru: [
+        'Когда тепло возвращалось последний раз — что именно тогда было сказано или сделано?',
+        'Какой факт о текущем состоянии вы уже знаете, но откладываете назвать словами?',
+        'Что в карте «Маятник тепла» откликнулось сильнее всего?',
+      ],
+      uz: [
+        'Iliqlik oxirgi marta qaytganida — aynan nima aytildi yoki qilindi?',
+        'Hozirgi holat haqida qaysi faktni allaqachon bilasiz, lekin so‘z bilan aytishni keyinga qoldiryapsiz?',
+        '«Iliqlik mayatnigi» xaritasida nima eng kuchli aks-sado berdi?',
+      ],
+    },
+    sessionPlan: {
+      ru: [
+        { time: '1 · 10 мин', text: 'Возьмём один эпизод тёплого возвращения. Без оценок.' },
+        { time: '2 · 35 мин', text: 'Найдём точку, где надежда обогнала факты. И слово, которым это можно назвать.' },
+        { time: '3 · 15 мин', text: 'Сформулируем один шаг, который не запускает круг снова.' },
+      ],
+      uz: [
+        { time: '1 · 10 daq.', text: 'Bitta iliq qaytish lahzasini olamiz. Bahosiz.' },
+        { time: '2 · 35 daq.', text: 'Umid faktlardan o‘zib ketgan nuqtani topamiz. Va uni nomlash mumkin bo‘lgan so‘zni.' },
+        { time: '3 · 15 daq.', text: 'Aylanani qayta yoqmaydigan bitta qadamni tuzamiz.' },
+      ],
+    },
   },
   tuman: {
     key: 'tuman',
@@ -93,6 +117,30 @@ export const RESULTS: Record<ResultKey, ResultData> = {
     firstStep: {
       ru: 'На один лист — три факта, рядом — три ожидания. Не оценивая, просто разделить.',
       uz: 'Bitta varaqqa — uchta fakt, yonida — uchta kutish. Bahosiz, oddiy ajratish.',
+    },
+    prepQuestions: {
+      ru: [
+        'Что вы достоверно знаете о текущей точке отношений — без догадок?',
+        'Где именно вы заменяете факт ожиданием — приведите один пример?',
+        'Какая часть «Тумана» в вашей истории особенно густая?',
+      ],
+      uz: [
+        'Munosabatlarning hozirgi nuqtasi haqida nimani aniq bilasiz — taxminlarsiz?',
+        'Aynan qayerda faktni kutish bilan almashtiryapsiz — bitta misol keltiring?',
+        '«Tuman»ning sizning hikoyangizdagi qaysi qismi ayniqsa qalin?',
+      ],
+    },
+    sessionPlan: {
+      ru: [
+        { time: '1 · 10 мин', text: 'Разделим то, что вы точно знаете, и то, что предполагаете.' },
+        { time: '2 · 35 мин', text: 'Найдём, где ожидание стало восприниматься как факт. И обратно.' },
+        { time: '3 · 15 мин', text: 'Сформулируем один шаг, который вернёт ясность в одну конкретную точку.' },
+      ],
+      uz: [
+        { time: '1 · 10 daq.', text: 'Aniq bilganlaringizni va taxmin qilganlaringizni ajratamiz.' },
+        { time: '2 · 35 daq.', text: 'Kutish fakt sifatida qabul qilingan joyni topamiz. Va aksincha.' },
+        { time: '3 · 15 daq.', text: 'Bir aniq nuqtaga aniqlikni qaytaradigan bitta qadamni tuzamiz.' },
+      ],
     },
   },
   dogonyayu: {
@@ -140,6 +188,30 @@ export const RESULTS: Record<ResultKey, ResultData> = {
       ru: 'Дать одному вопросу 24 часа тишины — и посмотреть, что меняется внутри, без ответа.',
       uz: 'Bitta savolga 24 soat sukunat berish — javobsiz, ichda nima o‘zgarishini kuzatish.',
     },
+    prepQuestions: {
+      ru: [
+        'Какой вопрос вы задаёте чаще всего — себе или партнёру?',
+        'Что должно появиться, чтобы вы могли оставить этот вопрос на 24 часа?',
+        'Где «погоня за ответом» сильнее всего обгоняет реальный контакт?',
+      ],
+      uz: [
+        'Qaysi savolni o‘zingizga yoki sherigingizga eng ko‘p berasiz?',
+        'Bu savolni 24 soatga qoldirish uchun nima paydo bo‘lishi kerak?',
+        '«Javob ortidan quvish» haqiqiy aloqani eng kuchli qaerda ortda qoldiradi?',
+      ],
+    },
+    sessionPlan: {
+      ru: [
+        { time: '1 · 10 мин', text: 'Возьмём один вопрос, который возвращается чаще всего.' },
+        { time: '2 · 35 мин', text: 'Разложим, где контакт превращается в поиск ответа.' },
+        { time: '3 · 15 мин', text: 'Сформулируем один шаг, который не требует немедленного ответа.' },
+      ],
+      uz: [
+        { time: '1 · 10 daq.', text: 'Eng ko‘p qaytadigan bitta savolni olamiz.' },
+        { time: '2 · 35 daq.', text: 'Aloqa javob izlashga aylangan joyni tahlil qilamiz.' },
+        { time: '3 · 15 daq.', text: 'Zudlik bilan javob talab qilmaydigan bitta qadamni tuzamiz.' },
+      ],
+    },
   },
   iskra: {
     key: 'iskra',
@@ -186,6 +258,30 @@ export const RESULTS: Record<ResultKey, ResultData> = {
       ru: 'Описать начало одним абзацем — и рядом фактами зафиксировать, что есть прямо сейчас.',
       uz: 'Boshlanishni bitta xat bilan tasvirlash — va yonida hozir bor faktlarni qayd etish.',
     },
+    prepQuestions: {
+      ru: [
+        'Какой эпизод начала вы возвращаете в памяти чаще остальных?',
+        'Когда именно темп изменился — есть ли конкретная точка?',
+        'Что сейчас сильнее: воспоминание о начале или текущие факты?',
+      ],
+      uz: [
+        'Boshlanishning qaysi lahzasini eng ko‘p xotiraga qaytarasiz?',
+        'Temp aynan qachon o‘zgardi — aniq nuqta bormi?',
+        'Hozir nima kuchliroq: boshlanish xotirasi yoki joriy faktlar?',
+      ],
+    },
+    sessionPlan: {
+      ru: [
+        { time: '1 · 10 мин', text: 'Возьмём один яркий эпизод начала.' },
+        { time: '2 · 35 мин', text: 'Найдём точку, где темп изменился и воспоминание стало сильнее текущих фактов.' },
+        { time: '3 · 15 мин', text: 'Сформулируем один шаг, который проверяет реальность сейчас, а не только начало.' },
+      ],
+      uz: [
+        { time: '1 · 10 daq.', text: 'Boshlanishning bitta yorqin lahzasini olamiz.' },
+        { time: '2 · 35 daq.', text: 'Temp o‘zgargan va xotira joriy faktlardan kuchliroq bo‘lgan nuqtani topamiz.' },
+        { time: '3 · 15 daq.', text: 'Faqat boshlanish emas, hozirgi reallikni tekshiradigan bitta qadamni tuzamiz.' },
+      ],
+    },
   },
   dver: {
     key: 'dver',
@@ -231,6 +327,30 @@ export const RESULTS: Record<ResultKey, ResultData> = {
     firstStep: {
       ru: 'Назвать одну дверь, у которой больше не нужно стоять, — и записать это себе одной строкой.',
       uz: 'Endi turish shart bo‘lmagan bitta eshikni nomlash — va buni o‘zingizga bitta qatorda yozish.',
+    },
+    prepQuestions: {
+      ru: [
+        'Какая дверь, у которой вы стоите дольше всего?',
+        'Какие фрагменты близости вы уже точно получаете, а каких ждёте?',
+        'Что должно появиться, чтобы перестать ждать у этой двери?',
+      ],
+      uz: [
+        'Eng uzoq vaqt turgan eshigingiz qaysi?',
+        'Yaqinlikning qaysi parchalarini aniq olyapsiz, qaysilarini kutyapsiz?',
+        'Bu eshik oldida kutishni to‘xtatish uchun nima paydo bo‘lishi kerak?',
+      ],
+    },
+    sessionPlan: {
+      ru: [
+        { time: '1 · 10 мин', text: 'Возьмём один фрагмент близости, который держит внимание.' },
+        { time: '2 · 35 мин', text: 'Разделим, что действительно открыто, а что остаётся за закрытой дверью.' },
+        { time: '3 · 15 мин', text: 'Сформулируем один шаг, который сохраняет ясность без ожидания у двери.' },
+      ],
+      uz: [
+        { time: '1 · 10 daq.', text: 'E’tiborni ushlab turadigan bitta yaqinlik parchasini olamiz.' },
+        { time: '2 · 35 daq.', text: 'Haqiqatan ochiq bo‘lgan va yopiq eshik ortida qolgan narsalarni ajratamiz.' },
+        { time: '3 · 15 daq.', text: 'Eshik oldida kutmasdan aniqlikni saqlaydigan bitta qadamni tuzamiz.' },
+      ],
     },
   },
 };

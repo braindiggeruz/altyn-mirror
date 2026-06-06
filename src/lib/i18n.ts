@@ -7,22 +7,22 @@ export const ui = {
   tagline: { ru: 'Карта повторяющегося сценария', uz: 'Takrorlanuvchi stsenariy xaritasi' },
 
   hero: {
-    eyebrow: { ru: 'Бережно · конфиденциально · онлайн', uz: 'Ehtiyot bilan · maxfiy · onlayn' },
+    eyebrow: { ru: 'Бережно · конфиденциально', uz: 'Ehtiyot bilan · maxfiy' },
     headline: {
       ru: 'Отношения снова идут по кругу?',
       uz: 'Munosabatlar yana aylanada ketyaptimi?',
     },
     sub: {
-      ru: 'ALTYN Mirror соберёт вашу карту сценария за 60 секунд: где начинается круг, что его удерживает и какой вопрос стоит разложить глубже.',
-      uz: 'ALTYN Mirror 60 soniyada stsenariyingiz xaritasini yig‘adi: aylana qayerda boshlanadi, uni nima ushlab turadi va qaysi savolni chuqurroq tahlil qilish kerak.',
+      ru: 'За 60 секунд ALTYN Mirror соберёт карту вашего сценария: где он начинается, что его держит и какой вопрос разложить дальше.',
+      uz: '60 soniyada ALTYN Mirror stsenariyingiz xaritasini yig‘adi: u qayerda boshlanadi, nima ushlab turadi va qaysi savolni keyin tahlil qilish kerak.',
     },
     micro: {
-      ru: '7 коротких выборов · результат сразу · без оплаты на сайте · это не медицинская услуга',
-      uz: '7 ta qisqa tanlov · natija darhol · saytda to‘lov yo‘q · bu tibbiy xizmat emas',
+      ru: '7 коротких выборов · результат сразу · без оплаты на сайте',
+      uz: '7 ta qisqa tanlov · natija darhol · saytda to‘lov yo‘q',
     },
     trust: {
-      ru: 'Конфиденциально · без регистрации · переход в Telegram только по желанию',
-      uz: 'Maxfiy · ro‘yxatdan o‘tishsiz · Telegram’ga o‘tish faqat xohishingiz bilan',
+      ru: 'Конфиденциально · переход в Telegram только по вашему желанию · это не медицинская услуга',
+      uz: 'Maxfiy · Telegram’ga o‘tish faqat xohishingiz bilan · bu tibbiy xizmat emas',
     },
     cta: { ru: 'Открыть карту сценария', uz: 'Stsenariy xaritasini ochish' },
     note: {
@@ -31,11 +31,19 @@ export const ui = {
     },
   },
 
+  returningChip: {
+    text: {
+      ru: 'Карта № {token} собрана — продолжить в Telegram →',
+      uz: 'Xarita № {token} yig‘ilgan — Telegram’da davom etish →',
+    },
+  },
+
   intro: {
     line1: { ru: 'Сейчас зеркало соберёт не оценку, а карту динамики.', uz: 'Hozir oyna baho emas, dinamika xaritasini yig‘adi.' },
     line2: { ru: 'Выберите то, что ближе всего к знакомому сценарию.', uz: 'Sizga eng tanish stsenariyga yaqin variantni tanlang.' },
     cue:   { ru: 'Зеркало открывается…', uz: 'Oyna ochilmoqda…' },
-    skip:  { ru: 'Пропустить', uz: 'O‘tkazib yuborish' },
+    enter: { ru: 'Войти в зеркало', uz: 'Oynaga kirish' },
+    skip:  { ru: 'пропустить ритуал', uz: 'marosimni o‘tkazib yuborish' },
   },
 
   flow: {
@@ -66,6 +74,12 @@ export const ui = {
   result: {
     eyebrow: { ru: 'Ваша карта сценария', uz: 'Sizning stsenariy xaritangiz' },
 
+    // V5: assembled chip
+    assembledBy7: {
+      ru: 'Карта собрана по 7 маркерам · {date}',
+      uz: 'Xarita 7 marker bo‘yicha yig‘ildi · {date}',
+    },
+
     cardTitle:     { ru: 'Ваша карта сценария', uz: 'Sizning stsenariy xaritangiz' },
     cardPrimary:   { ru: 'Главный сценарий',     uz: 'Asosiy stsenariy' },
     cardSecondary: { ru: 'Второй оттенок',       uz: 'Ikkinchi tus' },
@@ -88,23 +102,69 @@ export const ui = {
     // V3 — Scenario Passport
     passportEyebrow:  { ru: 'Сценарный паспорт', uz: 'Stsenariy pasporti' },
     passportSerial:   { ru: 'Карта № {token} · {date}', uz: 'Xarita № {token} · {date}' },
-    bringHeading:     { ru: 'Что взять на личный разбор', uz: 'Shaxsiy tahlilga olib borish kerak' },
-    firstStepHeading: { ru: 'Первый спокойный шаг', uz: 'Birinchi xotirjam qadam' },
     passportStamp:    { ru: 'Только для личной рефлексии', uz: 'Faqat shaxsiy mulohaza uchun' },
 
-    // V3 — Persuasive session preview
-    sessionTitle: { ru: 'Что будет на личном онлайн-разборе', uz: 'Shaxsiy onlayn tahlilda nima bo‘ladi' },
-    sessionSteps: {
+    // V5 — “Это значит / Это не значит”
+    meaningTitle:  { ru: 'Что это значит и что это не значит', uz: 'Bu nimani bildiradi va nimani bildirmaydi' },
+    meaningIsHeading: { ru: 'Это значит', uz: 'Bu shuni bildiradi' },
+    meaningIsItems: {
       ru: [
-        { t: '1 · Сверим карту', d: 'Посмотрим вашу карту сценария вместе и уточним, что в ней откликнулось.' },
-        { t: '2 · Разложим узел', d: 'Разделим факты и ожидания в самой сильной точке — без оценок и ярлыков.' },
-        { t: '3 · Один шаг', d: 'Сформулируем первый спокойный шаг, который реально подходит вам сейчас.' },
+        'ваши ответы сложились в эту динамику',
+        'карта показывает, где замыкается круг',
+        'виден один вопрос, который можно разложить дальше',
       ],
       uz: [
-        { t: '1 · Xaritani tekshiramiz', d: 'Stsenariy xaritangizni birgalikda ko‘rib, nima aks etganini aniqlaymiz.' },
-        { t: '2 · Tugunni yechamiz', d: 'Eng kuchli nuqtada faktlar va kutishlarni — bahosiz, yorliqsiz ajratamiz.' },
-        { t: '3 · Bitta qadam', d: 'Sizga hozir aynan mos keladigan birinchi xotirjam qadamni tuzamiz.' },
+        'javoblaringiz shu dinamikani shakllantirdi',
+        'xarita aylana qayerda yopilishini ko‘rsatadi',
+        'keyin tahlil qilish mumkin bo‘lgan bitta savol ko‘rinadi',
       ],
+    },
+    meaningIsNotHeading: { ru: 'Это не значит', uz: 'Bu shuni bildirmaydi' },
+    meaningIsNotItems: {
+      ru: [
+        'это не ярлык',
+        'это не вывод о вас как о человеке',
+        'это не призыв принимать срочные решения',
+        'это не медицинская услуга',
+      ],
+      uz: [
+        'bu yorliq emas',
+        'bu siz haqingizda xulosa emas',
+        'bu shoshilinch qaror qabul qilishga chaqiriq emas',
+        'bu tibbiy xizmat emas',
+      ],
+    },
+
+    // V5 — Personal prep block
+    prepTitle:    { ru: 'Что взять на разбор', uz: 'Tahlilga olib borish kerak' },
+    prepSubtitle: {
+      ru: 'Три вопроса, с которых можно начать личный онлайн-разбор.',
+      uz: 'Shaxsiy onlayn tahlilni boshlash mumkin bo‘lgan uchta savol.',
+    },
+    prepCta: {
+      ru: 'Забрать эти вопросы в Telegram →',
+      uz: 'Bu savollarni Telegram’ga olib o‘tish →',
+    },
+
+    // V5 — First calm step (separate block)
+    firstStepHeading: { ru: 'Первый спокойный шаг', uz: 'Birinchi xotirjam qadam' },
+
+    // V5 — Personalized offer block
+    personalizedOfferTitle: {
+      ru: 'Что будет на разборе по «{scenario}»',
+      uz: '«{scenario}» bo‘yicha tahlilda nima bo‘ladi',
+    },
+    personalizedOfferFooter: {
+      ru: '60 минут онлайн · 10$ · без оплаты на сайте',
+      uz: '60 daqiqa onlayn · 10$ · saytda to‘lov yo‘q',
+    },
+    personalizedOfferBooking: {
+      ru: 'Запись через Telegram-бот @altyntherapybot',
+      uz: 'Yozilish @altyntherapybot Telegram-bot orqali',
+    },
+    personalizedOfferPayment: {
+      ru: 'Оплата принимается после разбора — Click, Payme или удобный перевод. Это не медицинская услуга.',
+      uz: 'To‘lov tahlildan keyin qabul qilinadi — Click, Payme yoki qulay o‘tkazma. Bu tibbiy xizmat emas.',
     },
 
     // V3 — Reassurance chips
@@ -112,55 +172,47 @@ export const ui = {
     reassureChips: {
       ru: [
         '60 минут онлайн',
+        '10$',
         'без оплаты на сайте',
+        'запись через Telegram',
         'конфиденциально',
         'без давления',
-        'это не медицинская услуга',
       ],
       uz: [
         '60 daqiqa onlayn',
+        '10$',
         'saytda to‘lov yo‘q',
+        'Telegram orqali yozilish',
         'maxfiy',
         'bosimsiz',
-        'bu tibbiy xizmat emas',
       ],
     },
 
-    // V3 — Continuation promise above CTA
+    // V5 — Continuation promise (token-aware)
+    continuationTokened: {
+      ru: 'В Telegram вы не начнёте заново — карта № {token} продолжится отсюда.',
+      uz: 'Telegram’da qaytadan boshlamaysiz — xarita № {token} shu yerdan davom etadi.',
+    },
     continuation: {
       ru: 'В Telegram вы не начнёте заново — карта продолжится отсюда.',
       uz: 'Telegram’da qaytadan boshlamaysiz — xarita shu yerdan davom etadi.',
     },
 
-    save:        { ru: 'Сохранить карту как изображение', uz: 'Xaritani rasm sifatida saqlash' },
+    save:        { ru: 'Сохранить карту', uz: 'Xaritani saqlash' },
     saving:      { ru: 'Собираем карту…',                  uz: 'Xarita yig‘ilmoqda…' },
     saved:       { ru: 'Карта сохранена в загрузки',       uz: 'Xarita yuklab olinganlarga saqlandi' },
     saveFail:    { ru: 'Не получилось сохранить — сделайте скриншот карты', uz: 'Saqlab bo‘lmadi — xarita skrinshotini oling' },
     retake:      { ru: 'Пройти заново', uz: 'Qayta o‘tish' },
 
-    offerTitle: { ru: 'Личный онлайн-разбор сценария', uz: 'Stsenariyning shaxsiy onlayn tahlili' },
-    offerLine:  { ru: 'Ваш сценарий можно посмотреть глубже на личном онлайн-разборе.', uz: 'Sizning stsenariyingizni shaxsiy onlayn tahlilda chuqurroq ko‘rish mumkin.' },
-    offerMeta:  { ru: '60 минут · 10$ · запись через Telegram-бот', uz: '60 daqiqa · 10$ · Telegram-bot orqali yozilish' },
-    offerBullets: {
-      ru: [
-        'разложить, где именно запускается круг',
-        'отделить факты от ожиданий',
-        'увидеть первый спокойный шаг без давления',
-      ],
-      uz: [
-        'aylana aynan qayerda boshlanishini tahlil qilish',
-        'faktlarni kutishlardan ajratish',
-        'bosimsiz birinchi xotirjam qadamni ko‘rish',
-      ],
-    },
-    primaryCta: { ru: 'Открыть Telegram и продолжить карту', uz: 'Telegram’ni ochib, xaritani davom ettirish' },
+    primaryCta: { ru: 'Продолжить карту в Telegram →', uz: 'Telegram’da xaritani davom ettirish →' },
+    stickyCta:  { ru: 'Продолжить в Telegram →', uz: 'Telegram’da davom etish →' },
   },
 
   modal: {
     title: { ru: 'Карта готова', uz: 'Xarita tayyor' },
     body:  {
-      ru: 'В Telegram вы не начнёте заново — карта продолжится отсюда. Откроются 3 коротких вопроса и, по желанию, запись на личный онлайн-разбор.',
-      uz: 'Telegram’da qaytadan boshlamaysiz — xarita shu yerdan davom etadi. 3 ta qisqa savol va, xohishingiz bilan, shaxsiy onlayn tahlilga yozilish ochiladi.',
+      ru: 'Вы переходите в Telegram с собранной картой — она продолжится с того места, где вы сейчас. Никаких повторов.',
+      uz: 'Yig‘ilgan xarita bilan Telegram’ga o‘tasiz — u hozirgi joyingizdan davom etadi. Hech qanday takror yo‘q.',
     },
     rowScenario:  { ru: 'Сценарий',         uz: 'Stsenariy' },
     rowNuance:    { ru: 'Оттенок',          uz: 'Tus' },
@@ -174,8 +226,8 @@ export const ui = {
     titlePersonal:{ ru: 'Ваша карта продолжится в Telegram', uz: 'Xaritangiz Telegram’da davom etadi' },
     titleGeneric: { ru: 'Открываем Telegram-бот ALTYN', uz: 'ALTYN Telegram-bot ochilmoqda' },
     promise: {
-      ru: 'Вы не начнёте заново. Бот узнает вашу карту по номеру и продолжит шаги отсюда.',
-      uz: 'Qaytadan boshlamaysiz. Bot xaritangizni raqami bo‘yicha taniydi va shu yerdan davom etadi.',
+      ru: 'Вы переходите в Telegram с собранной картой — она продолжится с того места, где вы сейчас. Никаких повторов.',
+      uz: 'Yig‘ilgan xarita bilan Telegram’ga o‘tasiz — u hozirgi joyingizdan davom etadi. Hech qanday takror yo‘q.',
     },
     genericBody: {
       ru: 'Если вы переходите впервые — лучше сначала собрать карту: это займёт около минуты.',
@@ -185,12 +237,12 @@ export const ui = {
     steps: {
       ru: [
         'Откроется @altyntherapybot',
-        'Бот увидит номер вашей карты',
+        'Вы продолжите с того места, где сейчас',
         '3 коротких вопроса · по желанию — запись на разбор',
       ],
       uz: [
         '@altyntherapybot ochiladi',
-        'Bot xaritangiz raqamini ko‘radi',
+        'Hozirgi joyingizdan davom etasiz',
         '3 ta qisqa savol · xohishga ko‘ra — tahlilga yozilish',
       ],
     },
@@ -204,6 +256,10 @@ export const ui = {
       ru: 'Если Telegram не открылся — нажмите ещё раз или откройте ссылку вручную.',
       uz: 'Telegram ochilmasa — qayta bosing yoki havolani qo‘lda oching.',
     },
+    notOpened:    { ru: 'Не открылось?', uz: 'Ochilmadimi?' },
+    copyLink:     { ru: 'Скопировать ссылку на бот', uz: 'Bot havolasini nusxalash' },
+    copyOk:       { ru: 'Ссылка скопирована', uz: 'Havola nusxalandi' },
+    copyFail:     { ru: 'Не удалось скопировать. Нажмите и удерживайте ссылку, чтобы скопировать вручную.', uz: 'Nusxalab bo‘lmadi. Havolani bosib turing va qo‘lda nusxalang.' },
     safe: {
       ru: 'Это не медицинская услуга. Бережно и конфиденциально.',
       uz: 'Bu tibbiy xizmat emas. Ehtiyot bilan va maxfiy.',

@@ -26,7 +26,7 @@ export function MirrorIntro({ lang, onSkip }: { lang: Lang; onSkip: () => void }
         initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: 0.45 }}
         className="serif mt-8 text-[24px] text-center leading-[1.2] text-ivory max-w-[28ch]"
-        style={{fontWeight: 500}}
+        style={{ fontWeight: 500 }}
       >
         {pick(ui.intro.line1, lang)}
       </motion.p>
@@ -45,13 +45,24 @@ export function MirrorIntro({ lang, onSkip }: { lang: Lang; onSkip: () => void }
         {pick(ui.intro.cue, lang)}
       </motion.p>
 
+      {/* V4: primary CTA is "Войти в зеркало →" */}
       <motion.button
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 1.4 }}
+        initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 1.35 }}
+        onClick={onSkip}
+        data-testid="intro-enter"
+        className="btn-gold mt-6 text-[16px]"
+      >
+        {pick(ui.intro.enter, lang)} →
+      </motion.button>
+
+      {/* Optional small secondary "пропустить ритуал" — same action under the hood */}
+      <motion.button
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 1.55 }}
         onClick={onSkip}
         data-testid="intro-skip"
-        className="mt-6 text-[12.5px] text-ivory/45 hover:text-gold transition-colors"
+        className="mt-4 text-[12px] text-ivory/45 hover:text-gold transition-colors"
       >
-        {pick(ui.intro.skip, lang)} →
+        {pick(ui.intro.skip, lang)}
       </motion.button>
     </motion.div>
   );
