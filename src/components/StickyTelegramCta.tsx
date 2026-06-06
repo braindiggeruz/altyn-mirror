@@ -1,31 +1,28 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { ui, pick } from '@/lib/i18n';
 import type { Lang, ResultKey } from '@/lib/types';
 
 type Props = {
   lang: Lang;
-  /** Pre-built `/go/telegram?target=owner&...` href (also encodes from=sticky_cta). */
-  ownerHref: string;
+  /** Direct Telegram URL (e.g. https://t.me/Altyn2304) — used as anchor href so
+   *  the browser follows the deep link in the same user gesture. */
+  ownerUrl: string;
   resultType: ResultKey;
-  /** Optional — kept for analytics symmetry (Pixel payload is built by caller). */
   secondaryResult?: ResultKey | '';
   tokenPresent: boolean;
-  /** Fires before navigation: Pixel OwnerDirectIntentClicked + notify owner_direct_intent. */
+  /** Fires Pixel + clipboard + notify side effects synchronously. */
   onClick: () => void;
 };
 
 /**
- * V6 — Sticky bottom CTA that takes the user directly to Алтын via the owner
- * tracking bridge. Appears after the user scrolls past the first viewport.
- * Always-visible "Сохранить карту" sits inside the page; this CTA is the
- * primary conversion path on every result.
+ * V6.1 — One-click sticky bottom CTA: fires tracking + clipboard + notify in
+ * the click handler, then lets the native `<a target="_blank">` open Алтын.
  */
 export function StickyTelegramCta({
   lang,
-  ownerHref,
+  ownerUrl,
   tokenPresent,
   onClick,
 }: Props) {
@@ -53,7 +50,6 @@ export function StickyTelegramCta({
       }
       style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}
     >
-      {/* Soft fade behind the CTA so it doesn't sit on top of body text */}
       <div
         aria-hidden="true"
         className="absolute inset-x-0 bottom-0 h-[140px] pointer-events-none"
@@ -63,16 +59,18 @@ export function StickyTelegramCta({
         }}
       />
       <div className="relative px-4 pb-3 max-w-[640px] mx-auto">
-        <Link
+        <a
           data-testid="sticky-telegram-link"
-          href={ownerHref}
+          href={ownerUrl}
+          target="_blank"
+          rel="noopener noreferrer"
           onClick={onClick}
           aria-disabled={!tokenPresent && undefined}
           className="btn-gold text-[16px] w-full pointer-events-auto shadow-gold"
           style={{ backdropFilter: 'blur(6px)' }}
         >
           {pick(ui.result.stickyCta, lang)}
-        </Link>
+        </a>
       </div>
     </div>
   );

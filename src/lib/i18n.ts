@@ -251,8 +251,29 @@ export const ui = {
 
     // V6 — Primary CTA points at Алтын directly. Secondary keeps bot path alive.
     primaryCta:       { ru: 'Написать Алтын по моей карте →', uz: 'Xaritam bo‘yicha Altyn’ga yozish →' },
-    secondaryBotCta:  { ru: 'Получить карту в Telegram-боте', uz: 'Xaritani Telegram-botda olish' },
+    primaryCtaHint: {
+      ru: 'Мы подготовим короткое сообщение — останется только вставить его в чат.',
+      uz: 'Biz qisqa xabarni tayyorlaymiz — uni chatga joylashtirsangiz kifoya.',
+    },
+    secondaryBotCta:  { ru: 'Открыть Telegram-бот вместо этого', uz: 'Buning o‘rniga Telegram-botni ochish' },
     stickyCta:        { ru: 'Написать Алтын →', uz: 'Altyn’ga yozish →' },
+
+    // V6.1 — On-page copy-ready message block (so the user can copy before tapping the CTA).
+    msgTitle: { ru: 'Готовое сообщение для Алтын', uz: 'Altyn uchun tayyor xabar' },
+    msgSubtitle: {
+      ru: 'Это сообщение мы подставим в буфер обмена, когда вы нажмёте кнопку. Можно скопировать заранее.',
+      uz: 'Bu xabar tugmani bosganingizda almashish buferiga joylashtiriladi. Oldindan ham nusxalashingiz mumkin.',
+    },
+    msgCopy:    { ru: 'Скопировать сообщение', uz: 'Xabarni nusxalash' },
+    msgCopied:  { ru: 'Сообщение скопировано', uz: 'Xabar nusxalandi' },
+    msgCopyFail:{ ru: 'Не удалось скопировать. Выделите текст и скопируйте вручную.', uz: 'Nusxalab bo‘lmadi. Matnni belgilang va qo‘lda nusxalang.' },
+
+    // V6.1 — Inline fallback if Telegram didn't open
+    tgNotOpened: {
+      ru: 'Если Telegram не открылся — нажмите ещё раз или скопируйте ссылку.',
+      uz: 'Telegram ochilmadi — qayta bosing yoki havolani nusxalang.',
+    },
+    copyOwnerLink: { ru: 'Скопировать ссылку на Алтын', uz: 'Altyn havolasini nusxalash' },
   },
 
   modal: {

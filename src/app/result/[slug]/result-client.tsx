@@ -12,13 +12,12 @@ import { notify } from '@/lib/notify';
 import { loadSession, saveSession } from '@/lib/storage';
 import type { SessionData } from '@/lib/storage';
 import { newToken } from '@/lib/token';
+import { OWNER_URL, openOwnerDirect, buildOwnerMessage } from '@/lib/openOwner';
 import { OrbitMark } from '@/components/OrbitMark';
 import { ShareCard } from '@/components/ShareCard';
 import { StickyTelegramCta } from '@/components/StickyTelegramCta';
 
 const VALID = new Set<ResultKey>(RESULT_KEYS);
-
-type IntentFrom = 'result_primary' | 'sticky_cta' | 'prep_block';
 
 export default function ResultClient({ slug }: { slug: string }) {
   const slugKey = (VALID.has(slug as ResultKey) ? (slug as ResultKey) : 'tuman');
@@ -98,34 +97,60 @@ export default function ResultClient({ slug }: { slug: string }) {
   const secondaryLabel = secondaryData ? pick(secondaryData.title, lang) : '';
   const keyQuestionLabel = pick(data.keyQuestion, lang);
 
-  // V6 — All "Написать Алтын" CTAs route through /go/telegram?target=owner
-  // and fire OwnerDirectIntentClicked + notify before navigating.
-  const ownerBridgeHref = useMemo(() => {
-    const t = session?.token || '';
-    return `/go/telegram/?target=owner&t=${encodeURIComponent(t)}&r=${primary}&from=`;
-  }, [session?.token, primary]);
-
+  // V6.1 — Bot fallback still routes through the bridge (visible, not hidden).
   const botBridgeHref = useMemo(() => {
     const t = session?.token || '';
     return `/go/telegram/?target=bot&t=${encodeURIComponent(t)}&r=${primary}&from=bot_secondary`;
   }, [session?.token, primary]);
 
-  function fireOwnerIntent(from: IntentFrom): void {
-    track.ctaClick(primary);
-    track.ownerDirectIntentClicked({
-      result_type: primary,
-      secondary_result: session?.secondary_result || '',
-      token_present: !!session?.token,
+  // V6.1 — On-page copy-ready message + inline copy + Telegram-didn't-open helper
+  const ownerMessage = useMemo(() => buildOwnerMessage({
+    scenario: scenarioLabel,
+    secondary: secondaryLabel,
+    keyQuestion: keyQuestionLabel,
+    lang,
+  }), [scenarioLabel, secondaryLabel, keyQuestionLabel, lang]);
+
+  const [msgCopyState, setMsgCopyState] = useState<'idle' | 'ok' | 'fail'>('idle');
+  const [linkCopyState, setLinkCopyState] = useState<'idle' | 'ok' | 'fail'>('idle');
+  const [showOpenHint, setShowOpenHint] = useState(false);
+  const hintTimerRef = useRef<number | null>(null);
+
+  async function copyText(text: string, kind: 'msg' | 'link') {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      }
+      if (kind === 'msg') { setMsgCopyState('ok'); window.setTimeout(() => setMsgCopyState('idle'), 2400); }
+      else { setLinkCopyState('ok'); window.setTimeout(() => setLinkCopyState('idle'), 2400); }
+    } catch {
+      if (kind === 'msg') { setMsgCopyState('fail'); window.setTimeout(() => setMsgCopyState('idle'), 3000); }
+      else { setLinkCopyState('fail'); window.setTimeout(() => setLinkCopyState('idle'), 3000); }
+    }
+  }
+
+  // V6.1 — One-click owner direct: fire side effects, then let anchor href open Telegram.
+  function fireOwnerIntent(from: 'result_primary' | 'sticky_cta' | 'prep_block'): void {
+    openOwnerDirect({
+      resultType: primary,
+      secondaryResult: session?.secondary_result || '',
+      tokenPresent: !!session?.token,
+      tokenShort: tokenShort === '——' ? '' : tokenShort,
+      scenarioTitle: scenarioLabel,
+      secondaryTitle: secondaryLabel,
+      keyQuestion: keyQuestionLabel,
       from,
+      lang,
     });
-    notify('owner_direct_intent', {
-      scenario: scenarioLabel,
-      secondary: secondaryLabel,
-      key_question: keyQuestionLabel,
-      token_short: tokenShort === '——' ? '' : tokenShort,
-      from,
-      page: '/result',
-    });
+
+    // After ~1.6s show the "did Telegram open?" inline helper.
+    // (mobile deep-links sometimes fail silently; this gives the user a fallback)
+    if (hintTimerRef.current) window.clearTimeout(hintTimerRef.current);
+    hintTimerRef.current = window.setTimeout(() => setShowOpenHint(true), 1800);
   }
 
   function fireBotIntent(): void {
@@ -179,7 +204,7 @@ export default function ResultClient({ slug }: { slug: string }) {
         </Link>
       </header>
 
-      <section className="px-5 pt-7 pb-40 max-w-[640px] mx-auto">
+      <section className="px-5 pt-7 pb-56 max-w-[640px] mx-auto">
         {/* ── Above-fold zone ── */}
         <motion.p
           initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
@@ -437,16 +462,18 @@ export default function ResultClient({ slug }: { slug: string }) {
             ))}
           </ol>
           <div className="mt-4">
-            <Link
+            <a
               data-testid="prep-telegram-cta"
-              href={`${ownerBridgeHref}prep_block`}
+              href={OWNER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => fireOwnerIntent('prep_block')}
               className="inline-flex items-center gap-2 text-[14px] text-gold hover:text-gold-200 transition-colors"
             >
               <span className="underline-offset-2 underline decoration-gold/40">
                 {pick(ui.result.prepCta, lang)}
               </span>
-            </Link>
+            </a>
           </div>
         </motion.section>
 
@@ -514,22 +541,89 @@ export default function ResultClient({ slug }: { slug: string }) {
           </ul>
         </motion.section>
 
-        {/* ── V6: Continuation promise + Primary CTA → Алтын direct + Secondary CTA → bot ── */}
+        {/* ── V6: Continuation promise + V6.1: on-page ready-to-paste message + one-click Алтын ── */}
         <div className="mt-9">
           <p className="text-[14px] text-gold/90 leading-[1.55]" data-testid="continuation-promise">
             {pick(ui.result.continueWithAltyn, lang)}
           </p>
 
-          <div className="mt-4 flex flex-col gap-3">
-            <Link
+          {/* V6.1 — On-page ready-to-paste message (secondary helper, NOT a required step) */}
+          <section
+            className="mt-4 card p-4"
+            style={{ background: 'rgba(20,20,25,0.55)' }}
+            data-testid="ready-message-block"
+          >
+            <p className="text-[11px] uppercase tracking-[0.22em] text-gold/80">
+              {pick(ui.result.msgTitle, lang)}
+            </p>
+            <p className="mt-1.5 text-[12.5px] text-ivory/60 leading-[1.5]">
+              {pick(ui.result.msgSubtitle, lang)}
+            </p>
+            <p
+              data-testid="ready-message-text"
+              className="mt-3 text-[14px] text-ivory/90 leading-[1.55] whitespace-pre-wrap select-text"
+            >
+              {ownerMessage}
+            </p>
+            <div className="mt-3 flex items-center gap-3 flex-wrap">
+              <button
+                data-testid="ready-message-copy"
+                onClick={() => copyText(ownerMessage, 'msg')}
+                className="btn-ghost text-[13px] py-2 px-3.5"
+              >
+                {pick(ui.result.msgCopy, lang)}
+              </button>
+              {msgCopyState === 'ok' && (
+                <span data-testid="ready-message-copied" className="text-[12.5px] text-gold/90">
+                  {pick(ui.result.msgCopied, lang)}
+                </span>
+              )}
+              {msgCopyState === 'fail' && (
+                <span className="text-[12px] text-bordo-400">{pick(ui.result.msgCopyFail, lang)}</span>
+              )}
+            </div>
+          </section>
+
+          <div className="mt-5 flex flex-col gap-2">
+            {/* V6.1 — One-click owner-direct primary CTA. Native <a> so the browser
+                follows the deep link in the same gesture; side effects fire in onClick. */}
+            <a
               data-testid="result-cta-altyn"
-              href={`${ownerBridgeHref}result_primary`}
+              href={OWNER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => fireOwnerIntent('result_primary')}
               className="btn-gold text-[16px] w-full text-center"
             >
               {pick(ui.result.primaryCta, lang)}
-            </Link>
+            </a>
+            <p className="text-[12.5px] text-ivory/55 leading-[1.5] text-center" data-testid="result-cta-hint">
+              {pick(ui.result.primaryCtaHint, lang)}
+            </p>
 
+            {/* V6.1 — Inline "Telegram didn't open?" helper (shows after 1.8s post-click) */}
+            {showOpenHint && (
+              <motion.div
+                initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+                className="mt-1 text-center"
+                data-testid="tg-not-opened-block"
+              >
+                <p className="text-[12.5px] text-ivory/60">{pick(ui.result.tgNotOpened, lang)}</p>
+                <button
+                  data-testid="copy-owner-link"
+                  onClick={() => copyText(OWNER_URL, 'link')}
+                  className="btn-ghost mt-2 text-[13px] py-2 px-3.5"
+                >
+                  {pick(ui.result.copyOwnerLink, lang)}
+                </button>
+                {linkCopyState === 'ok' && (
+                  <p className="mt-2 text-[12.5px] text-gold/90">{pick(ui.bridge.copyOk, lang)}</p>
+                )}
+              </motion.div>
+            )}
+          </div>
+
+          <div className="mt-5 flex flex-col gap-3">
             <Link
               data-testid="result-cta-bot"
               href={botBridgeHref}
@@ -575,10 +669,10 @@ export default function ResultClient({ slug }: { slug: string }) {
         <Link href="/contact/" className="hover:text-gold transition-colors">{pick(ui.legal.contact, lang)}</Link>
       </footer>
 
-      {/* Sticky bottom CTA → Алтын direct (V6) */}
+      {/* Sticky bottom CTA → Алтын direct one-click (V6.1) */}
       <StickyTelegramCta
         lang={lang}
-        ownerHref={`${ownerBridgeHref}sticky_cta`}
+        ownerUrl={OWNER_URL}
         resultType={primary}
         secondaryResult={session?.secondary_result || ''}
         tokenPresent={!!session?.token}
