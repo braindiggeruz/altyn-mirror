@@ -12,6 +12,7 @@ import { scoreAnswers } from '@/lib/scoring';
 import { getStoredLang } from '@/lib/lang';
 import { track } from '@/lib/tracking';
 import { notify } from '@/lib/notify';
+import { postMirrorEvent } from '@/lib/mirrorIngest';
 import { sendCapi, mirrorCompletedEventId, shouldFireMirrorCompleted, readCapiUserHints } from '@/lib/capi';
 import { loadSession, saveSession, makeSessionId } from '@/lib/storage';
 import type { SessionData } from '@/lib/storage';
@@ -60,6 +61,9 @@ export default function PlayPage() {
       saveSession(existing);
     }
     notify('quiz_started', { page: '/play' });
+    // Phase 2.3 — Mirror ingest. Fires in parallel to the Pixel/notify flow.
+    // Backend rejects duplicates by event_id; safe to call on every goToScene.
+    postMirrorEvent({ event_name: 'mirror_session_started', from: 'play_intro' });
   }
 
   function selectOption(optionId: string, resultKey: ResultKey) {
@@ -144,6 +148,15 @@ export default function PlayPage() {
       key_question: pick(primaryData.keyQuestion, lang),
       token_short: token.replace(/^am_/, '').slice(0, 10),
       page: '/play',
+    });
+    // Phase 2.3 — Mirror ingest for completion. eventId is shared with the
+    // Pixel/CAPI MirrorCompleted so admin can correlate later if needed.
+    postMirrorEvent({
+      event_name: 'mirror_completed',
+      event_id: shouldFireMirrorCompleted(sessionId) ? mirrorCompletedEventId(sessionId) : undefined,
+      result_type: primary,
+      secondary_result: secondary && secondary !== primary ? secondary : undefined,
+      from: 'play_finalize',
     });
 
     // V4: ~900ms cinematic beat (prefers-reduced-motion shortens inside MapAssembled).

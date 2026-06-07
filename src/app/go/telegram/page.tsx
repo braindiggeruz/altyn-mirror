@@ -8,6 +8,7 @@ import type { Lang, ResultKey } from '@/lib/types';
 import { getStoredLang } from '@/lib/lang';
 import { track } from '@/lib/tracking';
 import { notify } from '@/lib/notify';
+import { postMirrorEvent } from '@/lib/mirrorIngest';
 import { loadSession } from '@/lib/storage';
 import { isValidToken } from '@/lib/token';
 import { RESULTS, RESULT_KEYS } from '@/lib/results';
@@ -332,6 +333,12 @@ function OwnerBridge({
               token_short: shortToken,
               from: 'bridge_bot',
             });
+            postMirrorEvent({
+              event_name: 'telegram_bot_intent',
+              result_type: resultType,
+              secondary_result: nuance || undefined,
+              from: 'bridge_bot',
+            });
           }}
         >
           {pick(ui.bridge.openBotInstead, lang)}
@@ -497,6 +504,12 @@ function PersonalBotBridge({
               token_short: shortToken,
               from: from || 'bridge_bot',
             });
+            postMirrorEvent({
+              event_name: 'telegram_bot_intent',
+              result_type: resultType,
+              secondary_result: nuance || undefined,
+              from: from || 'bridge_bot',
+            });
           }}
         >
           {pick(ui.bridge.open, lang)}
@@ -569,6 +582,11 @@ function GenericBotBridge({
               from: 'bridge_bot',
             });
             notify('telegram_bot_intent', { from: from || 'bridge_bot' });
+            postMirrorEvent({
+              event_name: 'telegram_bot_intent',
+              result_type: resultType,
+              from: from || 'bridge_bot',
+            });
           }}
         >
           {pick(ui.bridge.open, lang)}

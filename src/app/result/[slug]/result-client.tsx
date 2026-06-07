@@ -9,6 +9,7 @@ import { RESULTS, RESULT_DISCLAIMER, RESULT_KEYS } from '@/lib/results';
 import { getStoredLang } from '@/lib/lang';
 import { track } from '@/lib/tracking';
 import { notify } from '@/lib/notify';
+import { postMirrorEvent } from '@/lib/mirrorIngest';
 import { sendCapi, mirrorCompletedEventId, shouldFireMirrorCompleted, readCapiUserHints } from '@/lib/capi';
 import { loadSession, saveSession } from '@/lib/storage';
 import type { SessionData } from '@/lib/storage';
@@ -203,6 +204,13 @@ export default function ResultClient({ slug }: { slug: string }) {
       token_short: tokenShort === '——' ? '' : tokenShort,
       from: 'bot_secondary',
       page: '/result',
+    });
+    // Phase 2.3 — Mirror ingest. Bot fallback intent.
+    postMirrorEvent({
+      event_name: 'telegram_bot_intent',
+      result_type: primary,
+      secondary_result: session?.secondary_result || undefined,
+      from: 'bot_secondary',
     });
   }
 

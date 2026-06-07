@@ -14,6 +14,7 @@ import {
   contactOwnerDirectEventId,
   readCapiUserHints,
 } from './capi';
+import { postMirrorEvent } from './mirrorIngest';
 
 export const OWNER_HANDLE = 'Altyn2304';
 export const OWNER_URL = `https://t.me/${OWNER_HANDLE}`;
@@ -292,6 +293,21 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
       }
     }
   }
+
+  // 4) Phase 2.3 — Mirror ingest. Sends to /api/mirror-event (Cloudflare
+  //    Pages Function) which forwards server-to-server to the backend with
+  //    MIRROR_INGEST_TOKEN. NEVER blocks the Telegram navigation. Failure
+  //    is silent. shouldNotify above only throttles the legacy /api/notify
+  //    Telegram-group ping; mirror ingest is throttled at backend level via
+  //    event_id idempotency, so we fire it on every real click.
+  postMirrorEvent({
+    event_name: 'owner_direct_intent',
+    event_id: eventId, // shared with Pixel/CAPI OwnerDirectIntent for correlation
+    result_type: args.resultType,
+    secondary_result: args.secondaryResult,
+    from: args.from,
+    prepared_message_present: true,
+  });
 
   return message;
 }
