@@ -348,6 +348,118 @@ export default function ResultClient({ slug }: { slug: string }) {
           </p>
         </motion.section>
 
+        {/* ──────────────────────────────────────────────────────────────
+            PR-2 — Primary CTA cluster lifted above the explanatory blocks.
+            The user can now act right after the Scenario Passport instead of
+            scrolling through 12+ paragraphs. Analytics unchanged:
+              - same data-testids (result-cta-altyn, ready-message-*, etc.)
+              - same fireOwnerIntent('result_primary') trigger
+              - same Contact / OwnerDirectIntentClicked event_ids
+            ────────────────────────────────────────────────────────────── */}
+        <div className="mt-7" data-testid="primary-cta-cluster">
+          <p className="text-[14px] text-gold/90 leading-[1.55]" data-testid="continuation-promise">
+            {pick(ui.result.continueWithAltyn, lang)}
+          </p>
+
+          {/* On-page ready-to-paste message */}
+          <section
+            className="mt-4 card p-4"
+            style={{ background: 'rgba(20,20,25,0.55)' }}
+            data-testid="ready-message-block"
+          >
+            <p className="text-[11px] uppercase tracking-[0.22em] text-gold/80">
+              {pick(ui.result.msgTitle, lang)}
+            </p>
+            <p className="mt-1.5 text-[12.5px] text-ivory/60 leading-[1.5]">
+              {pick(ui.result.msgSubtitle, lang)}
+            </p>
+            <p
+              data-testid="ready-message-text"
+              className="mt-3 text-[14px] text-ivory/90 leading-[1.55] whitespace-pre-wrap select-text"
+            >
+              {ownerMessage}
+            </p>
+            <div className="mt-3 flex items-center gap-3 flex-wrap">
+              <button
+                data-testid="ready-message-copy"
+                onClick={() => copyText(ownerMessage, 'msg')}
+                className="btn-ghost text-[13px] py-2 px-3.5"
+              >
+                {pick(ui.result.msgCopy, lang)}
+              </button>
+              {msgCopyState === 'ok' && (
+                <span data-testid="ready-message-copied" className="text-[12.5px] text-gold/90">
+                  {pick(ui.result.msgCopied, lang)}
+                </span>
+              )}
+              {msgCopyState === 'fail' && (
+                <span className="text-[12px] text-bordo-400">{pick(ui.result.msgCopyFail, lang)}</span>
+              )}
+            </div>
+          </section>
+
+          <div className="mt-5 flex flex-col gap-2">
+            {/* PR-1 — 3-step instruction shown BEFORE the click. */}
+            <div
+              data-testid="cta-instruction-block"
+              className="mb-1 rounded-2xl border border-gold/20 bg-ink-900/40 px-4 py-3 text-left"
+            >
+              <p className="text-[11.5px] uppercase tracking-[0.18em] text-gold/75 mb-2">
+                {pick(ui.result.instructionTitle, lang)}
+              </p>
+              <ol className="space-y-1.5 text-[13px] text-ivory/80 leading-[1.45] list-none">
+                <li className="flex gap-2" data-testid="cta-instruction-step-1">
+                  <span className="text-gold/80 font-semibold tabular-nums shrink-0">1.</span>
+                  <span>{pick(ui.result.instructionStep1, lang)}</span>
+                </li>
+                <li className="flex gap-2" data-testid="cta-instruction-step-2">
+                  <span className="text-gold/80 font-semibold tabular-nums shrink-0">2.</span>
+                  <span>{pick(ui.result.instructionStep2, lang)}</span>
+                </li>
+                <li className="flex gap-2" data-testid="cta-instruction-step-3">
+                  <span className="text-gold/80 font-semibold tabular-nums shrink-0">3.</span>
+                  <span>{pick(ui.result.instructionStep3, lang)}</span>
+                </li>
+              </ol>
+            </div>
+
+            {/* V6.1 — One-click owner-direct primary CTA */}
+            <a
+              data-testid="result-cta-altyn"
+              href={OWNER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => fireOwnerIntent('result_primary')}
+              className="btn-gold text-[16px] w-full text-center"
+            >
+              {pick(ui.result.primaryCta, lang)}
+            </a>
+            <p className="text-[12.5px] text-ivory/55 leading-[1.5] text-center" data-testid="result-cta-hint">
+              {pick(ui.result.primaryCtaHint, lang)}
+            </p>
+
+            {showOpenHint && (
+              <motion.div
+                initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+                className="mt-1 text-center"
+                data-testid="tg-not-opened-block"
+              >
+                <p className="text-[12.5px] text-ivory/60">{pick(ui.result.tgNotOpened, lang)}</p>
+                <button
+                  data-testid="copy-owner-link"
+                  onClick={() => copyText(OWNER_URL, 'link')}
+                  className="btn-ghost mt-2 text-[13px] py-2 px-3.5"
+                >
+                  {pick(ui.result.copyOwnerLink, lang)}
+                </button>
+                {linkCopyState === 'ok' && (
+                  <p className="mt-2 text-[12.5px] text-gold/90">{pick(ui.bridge.copyOk, lang)}</p>
+                )}
+              </motion.div>
+            )}
+          </div>
+        </div>
+
         {/* Poetic description */}
         <motion.p
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.55 }}
@@ -577,136 +689,30 @@ export default function ResultClient({ slug }: { slug: string }) {
           </ul>
         </motion.section>
 
-        {/* ── V6: Continuation promise + V6.1: on-page ready-to-paste message + one-click Алтын ── */}
-        <div className="mt-9">
-          <p className="text-[14px] text-gold/90 leading-[1.55]" data-testid="continuation-promise">
-            {pick(ui.result.continueWithAltyn, lang)}
-          </p>
-
-          {/* V6.1 — On-page ready-to-paste message (secondary helper, NOT a required step) */}
-          <section
-            className="mt-4 card p-4"
-            style={{ background: 'rgba(20,20,25,0.55)' }}
-            data-testid="ready-message-block"
+        {/* PR-2 — Bot fallback + save card moved below explanatory blocks.
+            Primary CTA already presented above; this section is for users
+            who want alternatives. Analytics unchanged. */}
+        <div className="mt-9 flex flex-col gap-3" data-testid="secondary-cta-cluster">
+          <Link
+            data-testid="result-cta-bot"
+            href={botBridgeHref}
+            onClick={fireBotIntent}
+            className="btn-ghost text-[14px] w-full text-center"
           >
-            <p className="text-[11px] uppercase tracking-[0.22em] text-gold/80">
-              {pick(ui.result.msgTitle, lang)}
-            </p>
-            <p className="mt-1.5 text-[12.5px] text-ivory/60 leading-[1.5]">
-              {pick(ui.result.msgSubtitle, lang)}
-            </p>
-            <p
-              data-testid="ready-message-text"
-              className="mt-3 text-[14px] text-ivory/90 leading-[1.55] whitespace-pre-wrap select-text"
-            >
-              {ownerMessage}
-            </p>
-            <div className="mt-3 flex items-center gap-3 flex-wrap">
-              <button
-                data-testid="ready-message-copy"
-                onClick={() => copyText(ownerMessage, 'msg')}
-                className="btn-ghost text-[13px] py-2 px-3.5"
-              >
-                {pick(ui.result.msgCopy, lang)}
-              </button>
-              {msgCopyState === 'ok' && (
-                <span data-testid="ready-message-copied" className="text-[12.5px] text-gold/90">
-                  {pick(ui.result.msgCopied, lang)}
-                </span>
-              )}
-              {msgCopyState === 'fail' && (
-                <span className="text-[12px] text-bordo-400">{pick(ui.result.msgCopyFail, lang)}</span>
-              )}
-            </div>
-          </section>
+            {pick(ui.result.secondaryBotCta, lang)}
+          </Link>
 
-          <div className="mt-5 flex flex-col gap-2">
-            {/* PR-1 — 3-step instruction shown BEFORE the click so the user
-                knows the clipboard + deep-link will happen automatically.
-                No analytics side effects; pure UI block. */}
-            <div
-              data-testid="cta-instruction-block"
-              className="mb-1 rounded-2xl border border-gold/20 bg-ink-900/40 px-4 py-3 text-left"
-            >
-              <p className="text-[11.5px] uppercase tracking-[0.18em] text-gold/75 mb-2">
-                {pick(ui.result.instructionTitle, lang)}
-              </p>
-              <ol className="space-y-1.5 text-[13px] text-ivory/80 leading-[1.45] list-none">
-                <li className="flex gap-2" data-testid="cta-instruction-step-1">
-                  <span className="text-gold/80 font-semibold tabular-nums shrink-0">1.</span>
-                  <span>{pick(ui.result.instructionStep1, lang)}</span>
-                </li>
-                <li className="flex gap-2" data-testid="cta-instruction-step-2">
-                  <span className="text-gold/80 font-semibold tabular-nums shrink-0">2.</span>
-                  <span>{pick(ui.result.instructionStep2, lang)}</span>
-                </li>
-                <li className="flex gap-2" data-testid="cta-instruction-step-3">
-                  <span className="text-gold/80 font-semibold tabular-nums shrink-0">3.</span>
-                  <span>{pick(ui.result.instructionStep3, lang)}</span>
-                </li>
-              </ol>
-            </div>
-
-            {/* V6.1 — One-click owner-direct primary CTA. Native <a> so the browser
-                follows the deep link in the same gesture; side effects fire in onClick. */}
-            <a
-              data-testid="result-cta-altyn"
-              href={OWNER_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => fireOwnerIntent('result_primary')}
-              className="btn-gold text-[16px] w-full text-center"
-            >
-              {pick(ui.result.primaryCta, lang)}
-            </a>
-            <p className="text-[12.5px] text-ivory/55 leading-[1.5] text-center" data-testid="result-cta-hint">
-              {pick(ui.result.primaryCtaHint, lang)}
-            </p>
-
-            {/* V6.1 — Inline "Telegram didn't open?" helper (shows after 1.8s post-click) */}
-            {showOpenHint && (
-              <motion.div
-                initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-                className="mt-1 text-center"
-                data-testid="tg-not-opened-block"
-              >
-                <p className="text-[12.5px] text-ivory/60">{pick(ui.result.tgNotOpened, lang)}</p>
-                <button
-                  data-testid="copy-owner-link"
-                  onClick={() => copyText(OWNER_URL, 'link')}
-                  className="btn-ghost mt-2 text-[13px] py-2 px-3.5"
-                >
-                  {pick(ui.result.copyOwnerLink, lang)}
-                </button>
-                {linkCopyState === 'ok' && (
-                  <p className="mt-2 text-[12.5px] text-gold/90">{pick(ui.bridge.copyOk, lang)}</p>
-                )}
-              </motion.div>
-            )}
-          </div>
-
-          <div className="mt-5 flex flex-col gap-3">
-            <Link
-              data-testid="result-cta-bot"
-              href={botBridgeHref}
-              onClick={fireBotIntent}
-              className="btn-ghost text-[14px] w-full text-center"
-            >
-              {pick(ui.result.secondaryBotCta, lang)}
-            </Link>
-
-            <button
-              data-testid="result-save-btn"
-              onClick={onSave}
-              className="text-[13px] text-ivory/60 hover:text-gold transition-colors py-2"
-              aria-live="polite"
-            >
-              {savingState === 'saving' ? pick(ui.result.saving, lang)
-                : savingState === 'saved' ? pick(ui.result.saved, lang)
-                : savingState === 'error' ? pick(ui.result.saveFail, lang)
-                : pick(ui.result.save, lang)}
-            </button>
-          </div>
+          <button
+            data-testid="result-save-btn"
+            onClick={onSave}
+            className="text-[13px] text-ivory/60 hover:text-gold transition-colors py-2"
+            aria-live="polite"
+          >
+            {savingState === 'saving' ? pick(ui.result.saving, lang)
+              : savingState === 'saved' ? pick(ui.result.saved, lang)
+              : savingState === 'error' ? pick(ui.result.saveFail, lang)
+              : pick(ui.result.save, lang)}
+          </button>
         </div>
 
         {/* Hidden render target for share card export */}
