@@ -284,6 +284,26 @@ export const ui = {
       uz: '📋 Xabar nusxalandi — Telegram’ga joylashtiring',
     },
 
+    // PR-3 — Soft banner shown inside Instagram / FBAV / FBAN / Line in-app
+    // browsers where the t.me deep-link is unreliable. Offers a copy-link
+    // fallback so the user can paste the URL into Safari/Chrome.
+    igBannerTitle: {
+      ru: 'Telegram может не открыться из встроенного браузера',
+      uz: 'Telegram ichki brauzerdan ochilmasligi mumkin',
+    },
+    igBannerBody: {
+      ru: 'Откройте страницу в Safari или Chrome — или скопируйте ссылку на Алтын и вставьте в адресную строку.',
+      uz: 'Sahifani Safari yoki Chrome’da oching — yoki Altyn havolasini nusxalab manzil satriga joylashtiring.',
+    },
+    igBannerCopyCta: {
+      ru: 'Скопировать ссылку на Алтын',
+      uz: 'Altyn havolasini nusxalash',
+    },
+    igBannerCopiedToast: {
+      ru: '🔗 Ссылка скопирована — вставьте в Safari/Chrome',
+      uz: '🔗 Havola nusxalandi — Safari/Chrome’ga joylashtiring',
+    },
+
     // V6.1 — On-page copy-ready message block (so the user can copy before tapping the CTA).
     msgTitle: { ru: 'Готовое сообщение для Алтын', uz: 'Altyn uchun tayyor xabar' },
     msgSubtitle: {

@@ -228,6 +228,21 @@ export const track = {
   },
 
   /**
+   * PR-3 — Diagnostic only. Fires once per session when the user lands inside
+   * an in-app webview (Instagram / FBAV / FBAN / Line / WeChat) where the
+   * Telegram deep-link is known to be unreliable. Custom event, NO value,
+   * NO currency, NO CAPI mirror — cannot pollute Custom Conversion or value-
+   * based optimization. Use only for funnel diagnostics in Events Manager.
+   */
+  igBrowserDetected(args: { browser: string; page_path?: string }): void {
+    fbq('trackCustom', 'IGBrowserDetected', {
+      browser: args.browser,
+      page_path: args.page_path ?? currentPagePath(),
+      ...sessionContext(),
+    });
+  },
+
+  /**
    * Lead is intentionally NOT fired anywhere in this app.
    * Preferred: Telegram bot receives /start am_<token> → backend → Meta CAPI sends Lead.
    */

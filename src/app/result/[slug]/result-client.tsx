@@ -17,6 +17,7 @@ import { OWNER_URL, openOwnerDirect, buildOwnerMessage } from '@/lib/openOwner';
 import { OrbitMark } from '@/components/OrbitMark';
 import { ShareCard } from '@/components/ShareCard';
 import { StickyTelegramCta } from '@/components/StickyTelegramCta';
+import IgBrowserBanner from '@/components/IgBrowserBanner';
 
 const VALID = new Set<ResultKey>(RESULT_KEYS);
 
@@ -360,6 +361,19 @@ export default function ResultClient({ slug }: { slug: string }) {
           <p className="text-[14px] text-gold/90 leading-[1.55]" data-testid="continuation-promise">
             {pick(ui.result.continueWithAltyn, lang)}
           </p>
+
+          {/* PR-3 — IG/FB/Line in-app browser fallback. Renders only when
+              webview is detected. Pure add-on — does not replace primary CTA. */}
+          <IgBrowserBanner
+            lang={lang}
+            resultType={primary}
+            secondaryResult={session?.secondary_result || ''}
+            tokenPresent={!!session?.token}
+            tokenShort={tokenShort === '——' ? '' : tokenShort}
+            scenarioTitle={scenarioLabel}
+            secondaryTitle={secondaryLabel}
+            keyQuestion={keyQuestionLabel}
+          />
 
           {/* On-page ready-to-paste message */}
           <section

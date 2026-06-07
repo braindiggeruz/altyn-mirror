@@ -25,7 +25,12 @@ export type OwnerDirectFrom =
   | 'returning_chip'
   | 'recovery_toast'
   | 'bridge_owner'
-  | 'result_modal_primary';
+  | 'result_modal_primary'
+  // PR-3 — In-app browser (Instagram / FBAV / FBAN / Line) fallback:
+  // user explicitly chooses "copy link" path because the deep-link to
+  // Telegram is unreliable inside the webview. This IS a real owner-direct
+  // intent — included in `contactAllowed` so Meta still receives the signal.
+  | 'ig_browser_copy';
 
 export function buildOwnerMessage(args: {
   scenario: string;
@@ -75,6 +80,9 @@ export type OpenOwnerArgs = {
   keyQuestion: string;
   from: OwnerDirectFrom;
   lang: 'ru' | 'uz';
+  // PR-3: in IG/FB webview fallback we want to copy the bare OWNER_URL
+  // so the user can paste it into Safari/Chrome. Default 'message'.
+  copyTarget?: 'message' | 'url';
 };
 
 const NOTIFY_FLAG_PREFIX = 'altyn.notified.owner_direct_intent.';
@@ -164,6 +172,7 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
     'recovery_toast',
     'bridge_owner',
     'result_modal_primary',
+    'ig_browser_copy', // PR-3 — IG/FB webview fallback is a real owner-direct intent
   ];
   const shouldFireContact = contactAllowed.includes(args.from);
   try {
@@ -227,9 +236,12 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
     }
   } catch { /* swallow */ }
 
-  // 2) Clipboard — best-effort, no awaiting
+  // 2) Clipboard — best-effort, no awaiting.
+  //    PR-3: when called from IG/FB webview fallback we copy the bare OWNER_URL
+  //    instead of the prepared message so the user can paste it into Safari/Chrome.
+  const textToCopy = args.copyTarget === 'url' ? OWNER_URL : message;
   if (typeof navigator !== 'undefined' && navigator.clipboard && window.isSecureContext) {
-    try { navigator.clipboard.writeText(message).catch(() => { /* swallow */ }); } catch { /* swallow */ }
+    try { navigator.clipboard.writeText(textToCopy).catch(() => { /* swallow */ }); } catch { /* swallow */ }
   }
 
   // 3) Notify — sendBeacon when available, fetch+keepalive otherwise.
