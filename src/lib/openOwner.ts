@@ -101,6 +101,34 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
     });
   } catch { /* swallow */ }
 
+  // 1a) Meta-ad compatibility shim — fire standard `Contact` Pixel event so
+  //     the already-live Custom Conversion (Contact + URL /result) activates
+  //     without changing the campaign. Fires ONLY here, inside a real user
+  //     click. NEVER on PageView / ResultViewed / MirrorCompleted / load.
+  //     NEVER `Lead`. Separate eventID from OwnerDirectIntent to avoid
+  //     cross-event dedupe collisions.
+  try {
+    const contactAllowed: ReadonlyArray<OwnerDirectFrom> = [
+      'result_primary',
+      'sticky_cta',
+      'prep_block',
+      'returning_chip',
+      'recovery_toast',
+      'bridge_owner',
+      'result_modal_primary',
+    ];
+    if (contactAllowed.includes(args.from)) {
+      const contactEventId =
+        `contact_owner_direct_${sessionId || 'anon'}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+      track.contactOwnerDirect({
+        result_type: args.resultType,
+        secondary_result: args.secondaryResult,
+        from: args.from,
+        event_id: contactEventId,
+      });
+    }
+  } catch { /* swallow */ }
+
   // 1b) CAPI — server-side dispatch with the SAME event_id for dedupe.
   //     Same-origin so _fbp / _fbc cookies are forwarded automatically.
   try {

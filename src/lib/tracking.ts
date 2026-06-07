@@ -157,6 +157,41 @@ export const track = {
       fbq('trackCustom', 'OwnerDirectIntentClicked', params);
     }
   },
+  /**
+   * Standard Pixel `Contact` event — fired ONLY on a real user click on the
+   * direct owner CTA (@Altyn2304). This is a Meta-ad compatibility shim so
+   * that the active Custom Conversion (event=Contact + URL contains /result)
+   * activates without changing the campaign.
+   *
+   * IMPORTANT:
+   *  - Never fire on PageView, ResultViewed, MirrorCompleted, or page load.
+   *  - Never fire `Lead`.
+   *  - This is fired ADDITIONALLY to OwnerDirectIntentClicked, not as a
+   *    replacement.
+   */
+  contactOwnerDirect(args: {
+    result_type: string;
+    secondary_result: string;
+    from: IntentFrom;
+    event_id: string;
+  }): void {
+    const ctx = sessionContext();
+    fbq(
+      'track',
+      'Contact',
+      {
+        content_name: 'altyn_mirror_owner_direct',
+        content_category: 'telegram_owner_intent',
+        value: 10,
+        currency: 'USD',
+        result_type: args.result_type,
+        secondary_result: args.secondary_result,
+        from: args.from,
+        session_id: ctx.session_id,
+      },
+      { eventID: args.event_id },
+    );
+  },
   /** Click-through to bot fallback (@altyntherapybot). */
   telegramIntentClicked(args: {
     result_type: string;
