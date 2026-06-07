@@ -33,12 +33,36 @@ export function buildOwnerMessage(args: {
   keyQuestion: string;
   lang: 'ru' | 'uz';
 }): string {
-  const sec = (args.secondary && args.secondary.trim())
-    || (args.lang === 'uz' ? 'aniqlanmagan' : 'не выделен');
+  // PR-1: gender-neutral, shorter, human. Drop the "оттенок: не выделен"
+  // fallback — if there's no real secondary, just omit that line.
+  const secondary = (args.secondary && args.secondary.trim()) || '';
+  const hasSecondary = secondary && secondary !== args.scenario;
+
   if (args.lang === 'uz') {
-    return `Assalomu alaykum, Altyn. Men ALTYN Mirror'dan o'tdim. Mening xaritam: «${args.scenario}», tus: «${sec}». Asosiy savol: «${args.keyQuestion}». Shaxsiy 60 daqiqalik 10$ onlayn tahlil haqida bilmoqchiman.`;
+    const scenarioLine = hasSecondary
+      ? `Stsenariy: «${args.scenario}» (tus — «${secondary}»).`
+      : `Stsenariy: «${args.scenario}».`;
+    return [
+      'Assalomu alaykum, Altyn. ALTYN Mirror natijasi bo‘yicha yozyapman.',
+      '',
+      scenarioLine,
+      `Asosiy savol: «${args.keyQuestion}».`,
+      '',
+      'Buni shaxsiy onlayn tahlilda (60 daqiqa, 10$) ko‘rib chiqmoqchiman.',
+    ].join('\n');
   }
-  return `Здравствуйте, Алтын. Я прошла ALTYN Mirror. Моя карта: «${args.scenario}», оттенок: «${sec}». Главный вопрос: «${args.keyQuestion}». Хочу узнать про личный онлайн-разбор 60 минут за 10$.`;
+
+  const scenarioLine = hasSecondary
+    ? `Сценарий: «${args.scenario}» (оттенок — «${secondary}»).`
+    : `Сценарий: «${args.scenario}».`;
+  return [
+    'Здравствуйте, Алтын. Пишу по итогам ALTYN Mirror.',
+    '',
+    scenarioLine,
+    `Главный вопрос: «${args.keyQuestion}».`,
+    '',
+    'Хочу разобрать это на личном онлайн-разборе (60 минут, 10$).',
+  ].join('\n');
 }
 
 export type OpenOwnerArgs = {

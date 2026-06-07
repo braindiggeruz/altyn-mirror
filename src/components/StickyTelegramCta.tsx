@@ -31,7 +31,9 @@ export function StickyTelegramCta({
   useEffect(() => {
     const onScroll = () => {
       if (typeof window === 'undefined') return;
-      const threshold = Math.max(420, window.innerHeight * 0.7);
+      // PR-1: sticky CTA appears earlier so it's visible right after Passport,
+      // not only after the user has scrolled through Meaning/Facts/Don't-do.
+      const threshold = Math.max(260, window.innerHeight * 0.4);
       setVisible(window.scrollY > threshold);
     };
     onScroll();

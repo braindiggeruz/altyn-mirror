@@ -61,7 +61,7 @@ export const SCENES: Scene[] = [
       { id: 's4a', result: 'mayatnik',  text: { ru: 'Редкие тёплые моменты, после которых снова появляется надежда', uz: 'Kamdan-kam iliq daqiqalar, ulardan keyin yana umid paydo bo‘ladi' } },
       { id: 's4b', result: 'tuman',     text: { ru: 'Мысль, что скоро всё станет понятнее', uz: 'Yaqinda hammasi tushunarli bo‘ladi degan fikr' } },
       { id: 's4c', result: 'dogonyayu', text: { ru: 'Желание наконец услышать честный ответ', uz: 'Nihoyat halol javob eshitish istagi' } },
-      { id: 's4d', result: 'iskra',     text: { ru: 'Память о том, как красиво всё начиналось', uz: 'Boshlanish qanchalik chiroyli bo‘lganini eslash' } },
+      { id: 's4d', result: 'iskra',     text: { ru: 'Воспоминание о ярком начале', uz: 'Yorqin boshlanish xotirasi' } },
     ],
   },
   {
@@ -101,7 +101,7 @@ export const SCENES: Scene[] = [
       ru: 'Последний маркер показывает, с чего лучше начать личный разбор.',
       uz: 'Oxirgi marker shaxsiy tahlilni nimadan boshlash kerakligini ko‘rsatadi.',
     },
-    question: { ru: 'Что вы бы хотели разложить глубже с Алтын?', uz: 'Altyn bilan chuqurroq nimani tahlil qilmoqchisiz?' },
+    question: { ru: 'С чего вы бы начали личный разбор этой карты?', uz: 'Ushbu xaritani shaxsiy tahlilini nimadan boshlagan bo‘lardingiz?' },
     options: [
       { id: 's7a', result: 'mayatnik',  text: { ru: 'Почему редкое тепло так сильно возвращает меня в круг', uz: 'Nima uchun kamdan-kam iliqlik meni aylana ichiga shunchalik kuchli qaytaradi' } },
       { id: 's7b', result: 'tuman',     text: { ru: 'Где заканчиваются факты и начинается ожидание', uz: 'Faktlar qayerda tugaydi va kutish qayerda boshlanadi' } },

@@ -138,7 +138,11 @@ export default function ResultClient({ slug }: { slug: string }) {
   const [msgCopyState, setMsgCopyState] = useState<'idle' | 'ok' | 'fail'>('idle');
   const [linkCopyState, setLinkCopyState] = useState<'idle' | 'ok' | 'fail'>('idle');
   const [showOpenHint, setShowOpenHint] = useState(false);
+  // PR-1: dedicated state for the post-CTA-click toast so it doesn't fight
+  // with the explicit "Copy message" button feedback (msgCopyState).
+  const [showCtaToast, setShowCtaToast] = useState(false);
   const hintTimerRef = useRef<number | null>(null);
+  const ctaToastTimerRef = useRef<number | null>(null);
 
   async function copyText(text: string, kind: 'msg' | 'link') {
     try {
@@ -170,6 +174,14 @@ export default function ResultClient({ slug }: { slug: string }) {
       from,
       lang,
     });
+
+    // PR-1: visible confirmation that the prepared message has been copied.
+    // Pure UI — no Pixel / CAPI / notify side-effects, no event_id, no value.
+    // (Pixel Contact + OwnerDirectIntentClicked are still fired only by
+    // openOwnerDirect on a real user click — unchanged.)
+    setShowCtaToast(true);
+    if (ctaToastTimerRef.current) window.clearTimeout(ctaToastTimerRef.current);
+    ctaToastTimerRef.current = window.setTimeout(() => setShowCtaToast(false), 2400);
 
     // After ~1.6s show the "did Telegram open?" inline helper.
     // (mobile deep-links sometimes fail silently; this gives the user a fallback)
@@ -609,6 +621,32 @@ export default function ResultClient({ slug }: { slug: string }) {
           </section>
 
           <div className="mt-5 flex flex-col gap-2">
+            {/* PR-1 — 3-step instruction shown BEFORE the click so the user
+                knows the clipboard + deep-link will happen automatically.
+                No analytics side effects; pure UI block. */}
+            <div
+              data-testid="cta-instruction-block"
+              className="mb-1 rounded-2xl border border-gold/20 bg-ink-900/40 px-4 py-3 text-left"
+            >
+              <p className="text-[11.5px] uppercase tracking-[0.18em] text-gold/75 mb-2">
+                {pick(ui.result.instructionTitle, lang)}
+              </p>
+              <ol className="space-y-1.5 text-[13px] text-ivory/80 leading-[1.45] list-none">
+                <li className="flex gap-2" data-testid="cta-instruction-step-1">
+                  <span className="text-gold/80 font-semibold tabular-nums shrink-0">1.</span>
+                  <span>{pick(ui.result.instructionStep1, lang)}</span>
+                </li>
+                <li className="flex gap-2" data-testid="cta-instruction-step-2">
+                  <span className="text-gold/80 font-semibold tabular-nums shrink-0">2.</span>
+                  <span>{pick(ui.result.instructionStep2, lang)}</span>
+                </li>
+                <li className="flex gap-2" data-testid="cta-instruction-step-3">
+                  <span className="text-gold/80 font-semibold tabular-nums shrink-0">3.</span>
+                  <span>{pick(ui.result.instructionStep3, lang)}</span>
+                </li>
+              </ol>
+            </div>
+
             {/* V6.1 — One-click owner-direct primary CTA. Native <a> so the browser
                 follows the deep link in the same gesture; side effects fire in onClick. */}
             <a
@@ -702,6 +740,25 @@ export default function ResultClient({ slug }: { slug: string }) {
         tokenPresent={!!session?.token}
         onClick={() => fireOwnerIntent('sticky_cta')}
       />
+
+      {/* PR-1 — Post-click toast confirming the prepared message was copied
+          to clipboard. Sits above the sticky CTA, fades out after 2.4s.
+          Pure UI — no Pixel / CAPI / notify side effects. */}
+      <div
+        data-testid="cta-copy-toast"
+        aria-live="polite"
+        aria-hidden={!showCtaToast}
+        className={
+          'fixed inset-x-0 z-50 px-4 pointer-events-none ' +
+          'transition-all duration-300 ease-out ' +
+          (showCtaToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2')
+        }
+        style={{ bottom: 'calc(env(safe-area-inset-bottom) + 80px)' }}
+      >
+        <div className="max-w-[420px] mx-auto px-4 py-3 rounded-2xl bg-ink-900/95 border border-gold/40 text-ivory text-[14px] text-center shadow-gold">
+          {pick(ui.result.copyToast, lang)}
+        </div>
+      </div>
     </main>
   );
 }

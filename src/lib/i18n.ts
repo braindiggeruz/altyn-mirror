@@ -13,8 +13,8 @@ export const ui = {
       uz: 'Munosabatlar yana aylanada ketyaptimi?',
     },
     sub: {
-      ru: 'За 60 секунд ALTYN Mirror соберёт карту вашего сценария: где он начинается, что его держит и какой вопрос разложить дальше.',
-      uz: '60 soniyada ALTYN Mirror stsenariyingiz xaritasini yig‘adi: u qayerda boshlanadi, nima ushlab turadi va qaysi savolni keyin tahlil qilish kerak.',
+      ru: 'За пару минут ALTYN Mirror соберёт карту вашего сценария: где он начинается, что его держит и какой вопрос разложить дальше.',
+      uz: 'Bir necha daqiqada ALTYN Mirror stsenariyingiz xaritasini yig‘adi: u qayerda boshlanadi, nima ushlab turadi va qaysi savolni keyin tahlil qilish kerak.',
     },
     micro: {
       ru: '7 коротких выборов · результат сразу · без оплаты на сайте',
@@ -250,13 +250,39 @@ export const ui = {
     retake:      { ru: 'Пройти заново', uz: 'Qayta o‘tish' },
 
     // V6 — Primary CTA points at Алтын directly. Secondary keeps bot path alive.
-    primaryCta:       { ru: 'Написать Алтын по моей карте →', uz: 'Xaritam bo‘yicha Altyn’ga yozish →' },
+    primaryCta:       { ru: 'Скопировать сообщение и открыть Telegram →', uz: 'Xabarni nusxalab Telegram’ni ochish →' },
     primaryCtaHint: {
-      ru: 'Мы подготовим короткое сообщение — останется только вставить его в чат.',
-      uz: 'Biz qisqa xabarni tayyorlaymiz — uni chatga joylashtirsangiz kifoya.',
+      ru: 'Сообщение для Алтын скопируется автоматически — останется вставить и отправить.',
+      uz: 'Altyn uchun xabar avtomatik nusxalanadi — joylashtirib yuborish qoladi.',
     },
-    secondaryBotCta:  { ru: 'Открыть Telegram-бот вместо этого', uz: 'Buning o‘rniga Telegram-botni ochish' },
-    stickyCta:        { ru: 'Написать Алтын →', uz: 'Altyn’ga yozish →' },
+    secondaryBotCta:  { ru: 'Не готовы писать в личку? Открыть Telegram-бот →', uz: 'Shaxsiy yozishga tayyor emasmisiz? Telegram-botni ochish →' },
+    stickyCta:        { ru: 'Скопировать и открыть Telegram →', uz: 'Nusxalab Telegram’ni ochish →' },
+
+    // PR-1 — 3-step instruction shown ABOVE the primary CTA so the user knows
+    // exactly what will happen after the click (clipboard + deep-link to Алтын).
+    instructionTitle: {
+      ru: 'Что произойдёт после клика',
+      uz: 'Bosishdan keyin nima bo‘ladi',
+    },
+    instructionStep1: {
+      ru: 'Сообщение для Алтын скопируется автоматически',
+      uz: 'Altyn uchun xabar avtomatik nusxalanadi',
+    },
+    instructionStep2: {
+      ru: 'Откроется чат с @Altyn2304',
+      uz: '@Altyn2304 bilan chat ochiladi',
+    },
+    instructionStep3: {
+      ru: 'Удерживайте поле ввода → Вставить → Отправить',
+      uz: 'Kiritish maydonini bosib turing → Joylashtirish → Yuborish',
+    },
+
+    // PR-1 — toast shown for ~2.4s right after the user taps the primary CTA.
+    // Pure UI confirmation, no analytics side-effects.
+    copyToast: {
+      ru: '📋 Сообщение скопировано — вставьте в Telegram',
+      uz: '📋 Xabar nusxalandi — Telegram’ga joylashtiring',
+    },
 
     // V6.1 — On-page copy-ready message block (so the user can copy before tapping the CTA).
     msgTitle: { ru: 'Готовое сообщение для Алтын', uz: 'Altyn uchun tayyor xabar' },
