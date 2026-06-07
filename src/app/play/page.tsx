@@ -12,7 +12,7 @@ import { scoreAnswers } from '@/lib/scoring';
 import { getStoredLang } from '@/lib/lang';
 import { track } from '@/lib/tracking';
 import { notify } from '@/lib/notify';
-import { sendCapi, mirrorCompletedEventId, shouldFireMirrorCompleted } from '@/lib/capi';
+import { sendCapi, mirrorCompletedEventId, shouldFireMirrorCompleted, readCapiUserHints } from '@/lib/capi';
 import { loadSession, saveSession, makeSessionId } from '@/lib/storage';
 import type { SessionData } from '@/lib/storage';
 import { newToken } from '@/lib/token';
@@ -129,7 +129,9 @@ export default function PlayPage() {
         utm_content: existing?.utm_content || '',
         utm_term: existing?.utm_term || '',
         token_present: !!token,
-      });
+        page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+        fbclid_present: !!existing?.fbclid,
+      }, readCapiUserHints({ fbclid: existing?.fbclid, sessionId }));
     }
 
     // V6 — notify leads group that the map is complete (also fired on

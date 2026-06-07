@@ -9,7 +9,7 @@ import { RESULTS, RESULT_DISCLAIMER, RESULT_KEYS } from '@/lib/results';
 import { getStoredLang } from '@/lib/lang';
 import { track } from '@/lib/tracking';
 import { notify } from '@/lib/notify';
-import { sendCapi, mirrorCompletedEventId, shouldFireMirrorCompleted } from '@/lib/capi';
+import { sendCapi, mirrorCompletedEventId, shouldFireMirrorCompleted, readCapiUserHints } from '@/lib/capi';
 import { loadSession, saveSession } from '@/lib/storage';
 import type { SessionData } from '@/lib/storage';
 import { newToken } from '@/lib/token';
@@ -82,7 +82,9 @@ export default function ResultClient({ slug }: { slug: string }) {
         utm_content: s.utm_content || '',
         utm_term: s.utm_term || '',
         token_present: !!s.token,
-      });
+        page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+        fbclid_present: !!s.fbclid,
+      }, readCapiUserHints({ fbclid: s.fbclid, sessionId: s.session_id }));
     }
 
     // V6: notify the leads group that the map is complete (throttled per session)

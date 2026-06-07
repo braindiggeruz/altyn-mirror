@@ -8,7 +8,12 @@
 
 import { track } from './tracking';
 import { loadSession } from './storage';
-import { sendCapi, ownerDirectEventId } from './capi';
+import {
+  sendCapi,
+  ownerDirectEventId,
+  contactOwnerDirectEventId,
+  readCapiUserHints,
+} from './capi';
 
 export const OWNER_HANDLE = 'Altyn2304';
 export const OWNER_URL = `https://t.me/${OWNER_HANDLE}`;
@@ -51,6 +56,13 @@ export type OpenOwnerArgs = {
 const NOTIFY_FLAG_PREFIX = 'altyn.notified.owner_direct_intent.';
 const PENDING_KEY = 'altyn.notify.pending.v1';
 
+// In-memory guard: collapses accidental double-clicks (touch devices, anchor
+// re-emit) into a single set of fires. Same `from` within DEDUP_WINDOW_MS is
+// treated as a duplicate and skips Pixel + CAPI to avoid event-id explosion.
+const DEDUP_WINDOW_MS = 1500;
+let lastFireAt = 0;
+let lastFireFrom: OwnerDirectFrom | '' = '';
+
 function queuePending(payload: Record<string, unknown>): void {
   if (typeof window === 'undefined') return;
   try {
@@ -85,11 +97,22 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
     lang: args.lang,
   });
 
+  // Double-click / repeated-tap guard. The surrounding <a href="https://t.me/
+  // Altyn2304"> always navigates; we just skip the side effects so we don't
+  // emit two browser+CAPI pairs for the same logical intent.
+  const now = Date.now();
+  if (now - lastFireAt < DEDUP_WINDOW_MS && lastFireFrom === args.from) {
+    return message;
+  }
+  lastFireAt = now;
+  lastFireFrom = args.from;
+
   // 1) Pixel — synchronous trackCustom with eventID for browser/CAPI dedupe.
   //    Never Lead.
   const s = loadSession();
   const sessionId = s?.session_id || '';
   const eventId = ownerDirectEventId(sessionId);
+  const userHint = readCapiUserHints({ fbclid: s?.fbclid, sessionId });
   try {
     track.ctaClick(args.resultType);
     track.ownerDirectIntentClicked({
@@ -106,20 +129,21 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
   //     without changing the campaign. Fires ONLY here, inside a real user
   //     click. NEVER on PageView / ResultViewed / MirrorCompleted / load.
   //     NEVER `Lead`. Separate eventID from OwnerDirectIntent to avoid
-  //     cross-event dedupe collisions.
+  //     cross-event dedupe collisions. The SAME contactEventId is reused for
+  //     the server-side Contact CAPI call below so Meta de-duplicates.
+  const contactEventId = contactOwnerDirectEventId(sessionId);
+  const contactAllowed: ReadonlyArray<OwnerDirectFrom> = [
+    'result_primary',
+    'sticky_cta',
+    'prep_block',
+    'returning_chip',
+    'recovery_toast',
+    'bridge_owner',
+    'result_modal_primary',
+  ];
+  const shouldFireContact = contactAllowed.includes(args.from);
   try {
-    const contactAllowed: ReadonlyArray<OwnerDirectFrom> = [
-      'result_primary',
-      'sticky_cta',
-      'prep_block',
-      'returning_chip',
-      'recovery_toast',
-      'bridge_owner',
-      'result_modal_primary',
-    ];
-    if (contactAllowed.includes(args.from)) {
-      const contactEventId =
-        `contact_owner_direct_${sessionId || 'anon'}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+    if (shouldFireContact) {
       track.contactOwnerDirect({
         result_type: args.resultType,
         secondary_result: args.secondaryResult,
@@ -131,6 +155,8 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
 
   // 1b) CAPI — server-side dispatch with the SAME event_id for dedupe.
   //     Same-origin so _fbp / _fbc cookies are forwarded automatically.
+  //     User-data hints (fbp/fbc/fbclid/session_id) are a safe fallback in
+  //     case the cookie header is partitioned (ITP).
   try {
     sendCapi('OwnerDirectIntentClicked', eventId, {
       content_name: 'altyn_mirror_owner_direct',
@@ -146,7 +172,35 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
       utm_content: s?.utm_content || '',
       utm_term: s?.utm_term || '',
       token_present: args.tokenPresent,
-    });
+      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+      fbclid_present: !!s?.fbclid,
+    }, userHint);
+  } catch { /* swallow */ }
+
+  // 1c) Contact CAPI — mirrors the browser `Contact` event with the SAME
+  //     contactEventId so Meta de-duplicates browser + server. Fires only on
+  //     real owner-direct clicks; never on ResultViewed / MirrorCompleted /
+  //     PageView / load. Never Lead.
+  try {
+    if (shouldFireContact) {
+      sendCapi('Contact', contactEventId, {
+        content_name: 'altyn_mirror_owner_direct',
+        content_category: 'telegram_owner_intent',
+        value: 10,
+        currency: 'USD',
+        result_type: args.resultType,
+        secondary_result: args.secondaryResult,
+        from: args.from,
+        lang: s?.lang || args.lang,
+        utm_source: s?.utm_source || '',
+        utm_campaign: s?.utm_campaign || '',
+        utm_content: s?.utm_content || '',
+        utm_term: s?.utm_term || '',
+        token_present: args.tokenPresent,
+        page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+        fbclid_present: !!s?.fbclid,
+      }, userHint);
+    }
   } catch { /* swallow */ }
 
   // 2) Clipboard — best-effort, no awaiting

@@ -188,6 +188,12 @@ export const track = {
         secondary_result: args.secondary_result,
         from: args.from,
         session_id: ctx.session_id,
+        utm_source: ctx.utm_source,
+        utm_campaign: ctx.utm_campaign,
+        utm_content: ctx.utm_content,
+        utm_term: ctx.utm_term,
+        fbclid_present: ctx.fbclid_present,
+        page_path: currentPagePath(),
       },
       { eventID: args.event_id },
     );
