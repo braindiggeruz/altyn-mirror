@@ -243,6 +243,20 @@ export const track = {
   },
 
   /**
+   * Sprint 3 — Diagnostic only. Fires once per session when the user scrolls
+   * the bot-save block into view. Custom event, NO value, NO currency, NO
+   * CAPI mirror — cannot pollute Custom Conversion or value-based optimisation.
+   * Use only for funnel diagnostics in Events Manager.
+   */
+  botSaveViewed(args: { result_type: string }): void {
+    fbq('trackCustom', 'BotSaveViewed', {
+      result_type: args.result_type,
+      page_path: currentPagePath(),
+      ...sessionContext(),
+    });
+  },
+
+  /**
    * Lead is intentionally NOT fired anywhere in this app.
    * Preferred: Telegram bot receives /start am_<token> → backend → Meta CAPI sends Lead.
    */

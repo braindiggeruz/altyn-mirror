@@ -123,11 +123,28 @@ export default function ResultClient({ slug }: { slug: string }) {
   const secondaryLabel = secondaryData ? pick(secondaryData.title, lang) : '';
   const keyQuestionLabel = pick(data.keyQuestion, lang);
 
-  // V6.1 — Bot fallback still routes through the bridge (visible, not hidden).
+  // Sprint 3 — Bot-save direct deep-link. Was: a bridge route /go/telegram?…
+  // which required an extra interstitial click. Now: native t.me/<bot>?start=
+  // am_<token> so the user lands inside the bot in one tap and the bot can
+  // immediately resolve am_<token> → mirror_session (LinkedTelegram).
+  //
+  // Token already lives in storage in `am_xxxxx` form for completed sessions;
+  // fallback to a bare bot link for anonymous direct visits (no /start payload
+  // means the bot still opens, just without auto-linking).
+  //
+  // The /go/telegram bridge page is intentionally NOT removed — other entry
+  // points (returning chip, recovery toast) may still rely on it.
+  const BOT_HANDLE = 'altyntherapybot';
   const botBridgeHref = useMemo(() => {
-    const t = session?.token || '';
-    return `/go/telegram/?target=bot&t=${encodeURIComponent(t)}&r=${primary}&from=bot_secondary`;
-  }, [session?.token, primary]);
+    const tk = session?.token || '';
+    if (tk && /^am_/.test(tk)) {
+      return `https://t.me/${BOT_HANDLE}?start=${encodeURIComponent(tk)}`;
+    }
+    if (tk) {
+      return `https://t.me/${BOT_HANDLE}?start=${encodeURIComponent('am_' + tk)}`;
+    }
+    return `https://t.me/${BOT_HANDLE}`;
+  }, [session?.token]);
 
   // V6.1 — On-page copy-ready message + inline copy + Telegram-didn't-open helper
   const ownerMessage = useMemo(() => buildOwnerMessage({
@@ -213,6 +230,29 @@ export default function ResultClient({ slug }: { slug: string }) {
       from: 'bot_secondary',
     });
   }
+
+  // Sprint 3 — BotSaveViewed diagnostic. Fires once per session when the
+  // bot-save block scrolls into viewport. Custom event, no value/currency,
+  // no CAPI mirror, no notify. Pure funnel diagnostic for Events Manager.
+  const botSaveBlockRef = useRef<HTMLDivElement | null>(null);
+  const botSaveViewedRef = useRef(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (botSaveViewedRef.current) return;
+    const node = botSaveBlockRef.current;
+    if (!node || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting && !botSaveViewedRef.current) {
+          botSaveViewedRef.current = true;
+          try { track.botSaveViewed({ result_type: primary }); } catch { /* swallow */ }
+          io.disconnect();
+        }
+      }
+    }, { threshold: 0.4 });
+    io.observe(node);
+    return () => io.disconnect();
+  }, [primary]);
 
   async function onSave() {
     if (savingState === 'saving') return;
@@ -521,20 +561,27 @@ export default function ResultClient({ slug }: { slug: string }) {
                 copy ("Не готовы прямо сейчас?") keeps hot users on primary.
                 Outline visual hierarchy — primary CTA still dominates.
                 Click behaviour reuses fireBotIntent (TelegramIntentClicked +
-                telegram_bot_intent notify + mirror ingest). Sprint 3 changes
-                the href to a direct t.me/altyntherapybot?start=am_<token>. */}
-            <div className="mt-5 pt-5 border-t border-ivory/10" data-testid="bot-save-cluster">
+                telegram_bot_intent notify + mirror ingest). Sprint 3 now
+                points directly at t.me/altyntherapybot?start=am_<token> so
+                the bot can immediately resolve LinkedTelegram in one tap. */}
+            <div
+              ref={botSaveBlockRef}
+              className="mt-5 pt-5 border-t border-ivory/10"
+              data-testid="bot-save-cluster"
+            >
               <p className="text-[12.5px] text-ivory/65 leading-[1.55] text-center" data-testid="bot-save-self-segment">
                 {pick(ui.result.botSaveSelfSegment, lang)}
               </p>
-              <Link
+              <a
                 data-testid="result-cta-bot"
                 href={botBridgeHref}
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={fireBotIntent}
-                className="btn-ghost text-[14px] w-full text-center mt-3"
+                className="btn-ghost text-[14px] w-full text-center mt-3 block"
               >
                 {pick(ui.result.secondaryBotCta, lang)}
-              </Link>
+              </a>
             </div>
           </div>
         </div>
