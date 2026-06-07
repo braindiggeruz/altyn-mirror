@@ -38,12 +38,42 @@ export function buildOwnerMessage(args: {
   secondary?: string;
   keyQuestion: string;
   lang: 'ru' | 'uz';
+  // Sprint 1 — optional scenario key for per-scenario tone. When provided,
+  // the message uses a tighter 3-line personalised template instead of the
+  // generic ALTYN Mirror summary. Signature stays backward-compatible —
+  // callers without `scenarioKey` get the previous generic message.
+  scenarioKey?: 'mayatnik' | 'tuman' | 'dogonyayu' | 'iskra' | 'dver';
 }): string {
   // PR-1: gender-neutral, shorter, human. Drop the "оттенок: не выделен"
   // fallback — if there's no real secondary, just omit that line.
   const secondary = (args.secondary && args.secondary.trim()) || '';
   const hasSecondary = secondary && secondary !== args.scenario;
 
+  // Sprint 1 — per-scenario short message. 3 lines, scenario name + key
+  // question + ask for 60-min review at $10. No UTM / no debug / no session
+  // id. Human tone. RU + UZ.
+  if (args.scenarioKey) {
+    if (args.lang === 'uz') {
+      const scenarioLine = hasSecondary
+        ? `Xarita: «${args.scenario}» (tus — «${secondary}»).`
+        : `Xarita: «${args.scenario}».`;
+      return [
+        'Assalomu alaykum, Altyn. ALTYN Mirror‘dan o‘tdim.',
+        `${scenarioLine} Asosiy savol: «${args.keyQuestion}».`,
+        'Buni shaxsiy 60 daqiqalik onlayn tahlilda (10$) yechmoqchiman.',
+      ].join('\n');
+    }
+    const scenarioLine = hasSecondary
+      ? `Карта: «${args.scenario}» (оттенок — «${secondary}»).`
+      : `Карта: «${args.scenario}».`;
+    return [
+      'Здравствуйте, Алтын. Прошла ALTYN Mirror.',
+      `${scenarioLine} Главный вопрос: «${args.keyQuestion}».`,
+      'Хочу разобрать это на личном 60-минутном онлайн-разборе (10$).',
+    ].join('\n');
+  }
+
+  // Legacy generic template (backward compat for callers without scenarioKey).
   if (args.lang === 'uz') {
     const scenarioLine = hasSecondary
       ? `Stsenariy: «${args.scenario}» (tus — «${secondary}»).`
@@ -128,6 +158,9 @@ export function openOwnerDirect(args: OpenOwnerArgs): string {
     secondary: args.secondaryTitle,
     keyQuestion: args.keyQuestion,
     lang: args.lang,
+    // Sprint 1 — pass scenarioKey so the prepared message stays personal.
+    // resultType is the canonical key (mayatnik|tuman|dogonyayu|iskra|dver).
+    scenarioKey: (args.resultType as 'mayatnik' | 'tuman' | 'dogonyayu' | 'iskra' | 'dver'),
   });
 
   // Double-click / repeated-tap guard. The surrounding <a href="https://t.me/

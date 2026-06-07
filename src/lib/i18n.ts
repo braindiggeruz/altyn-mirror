@@ -8,23 +8,26 @@ export const ui = {
 
   hero: {
     eyebrow: { ru: 'Бережно · конфиденциально', uz: 'Ehtiyot bilan · maxfiy' },
+    // Sprint 1 — concrete pain-anchor headline that names the action a woman
+    // is already doing while scrolling Instagram. Replaces the abstract
+    // “Отношения снова идут по кругу?” question.
     headline: {
-      ru: 'Отношения снова идут по кругу?',
-      uz: 'Munosabatlar yana aylanada ketyaptimi?',
+      ru: 'Снова перечитываете его сообщения?',
+      uz: 'Yana uning xabarlarini qayta o‘qiyapsizmi?',
     },
     sub: {
-      ru: 'За пару минут ALTYN Mirror соберёт карту вашего сценария: где он начинается, что его держит и какой вопрос разложить дальше.',
-      uz: 'Bir necha daqiqada ALTYN Mirror stsenariyingiz xaritasini yig‘adi: u qayerda boshlanadi, nima ushlab turadi va qaysi savolni keyin tahlil qilish kerak.',
+      ru: 'За 7 коротких выборов ALTYN Mirror покажет, что именно повторяется — и какой вопрос можно разложить с Алтын за 60 минут онлайн.',
+      uz: '7 ta qisqa tanlov orqali ALTYN Mirror aynan nima takrorlanayotganini ko‘rsatadi — va Altyn bilan 60 daqiqada qaysi savolni tahlil qilish mumkinligini aniqlaydi.',
     },
     micro: {
-      ru: '7 коротких выборов · результат сразу · без оплаты на сайте',
-      uz: '7 ta qisqa tanlov · natija darhol · saytda to‘lov yo‘q',
+      ru: '7 выборов · ~90 секунд · результат сразу · без оплаты на сайте',
+      uz: '7 ta tanlov · ~90 soniya · natija darrov · saytda to‘lov yo‘q',
     },
     trust: {
-      ru: 'Конфиденциально · переход в Telegram только по вашему желанию · это не медицинская услуга',
-      uz: 'Maxfiy · Telegram’ga o‘tish faqat xohishingiz bilan · bu tibbiy xizmat emas',
+      ru: 'Конфиденциально · переход в Telegram только если захотите сами · это не медицинская услуга',
+      uz: 'Maxfiy · Telegram‘ga o‘tish faqat o‘zingiz xohlasangiz · bu tibbiy xizmat emas',
     },
-    cta: { ru: 'Открыть карту сценария', uz: 'Stsenariy xaritasini ochish' },
+    cta: { ru: 'Собрать мою карту →', uz: 'Xaritamni yig‘ish →' },
     note: {
       ru: 'Это инструмент личной рефлексии. ALTYN Mirror — не медицинская услуга и не заменяет помощь специалиста.',
       uz: 'Bu shaxsiy mulohaza vositasi. ALTYN Mirror tibbiy xizmat emas va mutaxassis yordamining o‘rnini bosmaydi.',
@@ -243,20 +246,39 @@ export const ui = {
       uz: 'Tahlilda testni qayta o‘tmaysiz. Allaqachon yig‘ilgan xaritadan boshlaysiz.',
     },
 
+    // Sprint 2 — emotional insight + mini-scene block titles + bot self-segmentation copy.
+    // Per-scenario insight/scene strings live on RESULTS (results.ts).
+    insightEyebrow: {
+      ru: 'Что узнаётся в этой карте',
+      uz: 'Bu xaritada nima taniladi',
+    },
+    miniSceneEyebrow: {
+      ru: 'Как это обычно выглядит',
+      uz: 'Bu odatda qanday ko‘rinadi',
+    },
+    botSaveSelfSegment: {
+      ru: 'Не готовы писать лично прямо сейчас? Сохраните карту в Telegram — она придёт в бот, чтобы вернуться к ней позже. Бот не пишет первым.',
+      uz: 'Hozir shaxsan yozishga tayyor emasmisiz? Xaritani Telegram‘da saqlang — u botga keladi, keyinroq qaytib kelish uchun. Bot birinchi yozmaydi.',
+    },
+
     save:        { ru: 'Сохранить карту', uz: 'Xaritani saqlash' },
     saving:      { ru: 'Собираем карту…',                  uz: 'Xarita yig‘ilmoqda…' },
     saved:       { ru: 'Карта сохранена в загрузки',       uz: 'Xarita yuklab olinganlarga saqlandi' },
     saveFail:    { ru: 'Не получилось сохранить — сделайте скриншот карты', uz: 'Saqlab bo‘lmadi — xarita skrinshotini oling' },
     retake:      { ru: 'Пройти заново', uz: 'Qayta o‘tish' },
 
-    // V6 — Primary CTA points at Алтын directly. Secondary keeps bot path alive.
-    primaryCta:       { ru: 'Скопировать сообщение и открыть Telegram →', uz: 'Xabarni nusxalab Telegram’ni ochish →' },
+    // Sprint 1 — emotional bridge CTA, replaces functional "Скопировать и открыть Telegram".
+    // Click behaviour unchanged: still copies prepared message, still opens @Altyn2304,
+    // still fires OwnerDirectIntentClicked + Contact only on real click.
+    primaryCta:       { ru: 'Разобрать мою карту с Алтын →', uz: 'Xaritamni Altyn bilan tahlil qilish →' },
     primaryCtaHint: {
       ru: 'Сообщение для Алтын скопируется автоматически — останется вставить и отправить.',
       uz: 'Altyn uchun xabar avtomatik nusxalanadi — joylashtirib yuborish qoladi.',
     },
-    secondaryBotCta:  { ru: 'Не готовы писать в личку? Открыть Telegram-бот →', uz: 'Shaxsiy yozishga tayyor emasmisiz? Telegram-botni ochish →' },
-    stickyCta:        { ru: 'Скопировать и открыть Telegram →', uz: 'Nusxalab Telegram’ni ochish →' },
+    // Sprint 1 — reframed bot fallback. Self-segmentation copy ("Не готовы прямо сейчас?")
+    // explicitly opts hot users OUT, so it does not compete with primary CTA.
+    secondaryBotCta:  { ru: 'Сохранить карту в Telegram', uz: 'Xaritani Telegram‘da saqlash' },
+    stickyCta:        { ru: 'Разобрать с Алтын →', uz: 'Altyn bilan tahlil qilish →' },
 
     // PR-1 — 3-step instruction shown ABOVE the primary CTA so the user knows
     // exactly what will happen after the click (clipboard + deep-link to Алтын).

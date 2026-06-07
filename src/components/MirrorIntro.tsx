@@ -1,11 +1,36 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ui, pick } from '@/lib/i18n';
 import type { Lang } from '@/lib/types';
 import { OrbitMark } from './OrbitMark';
 
 export function MirrorIntro({ lang, onSkip }: { lang: Lang; onSkip: () => void }) {
+  // Sprint 1 — auto-skip the ritual screen after 1500ms so users don't lose
+  // an extra click between landing CTA and Q1. The "Войти в зеркало" button
+  // and "пропустить ритуал" link remain visible and clickable for users who
+  // arrive faster than the timer fires (both call onSkip in the same gesture).
+  // prefers-reduced-motion skips even faster (350ms).
+  const fired = useRef(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    const delay = reduce ? 350 : 1500;
+    const t = window.setTimeout(() => {
+      if (fired.current) return;
+      fired.current = true;
+      onSkip();
+    }, delay);
+    return () => window.clearTimeout(t);
+  }, [onSkip]);
+
+  const handleManualSkip = () => {
+    if (fired.current) return;
+    fired.current = true;
+    onSkip();
+  };
+
   return (
     <motion.div
       key="intro"
@@ -45,10 +70,11 @@ export function MirrorIntro({ lang, onSkip }: { lang: Lang; onSkip: () => void }
         {pick(ui.intro.cue, lang)}
       </motion.p>
 
-      {/* V4: primary CTA is "Войти в зеркало →" */}
+      {/* V4: primary CTA is "Войти в зеркало →" — кликабелен для тех, кто
+          опередил auto-skip. После 1.5s onSkip срабатывает автоматически. */}
       <motion.button
         initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 1.35 }}
-        onClick={onSkip}
+        onClick={handleManualSkip}
         data-testid="intro-enter"
         className="btn-gold mt-6 text-[16px]"
       >
@@ -58,7 +84,7 @@ export function MirrorIntro({ lang, onSkip }: { lang: Lang; onSkip: () => void }
       {/* Optional small secondary "пропустить ритуал" — same action under the hood */}
       <motion.button
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 1.55 }}
-        onClick={onSkip}
+        onClick={handleManualSkip}
         data-testid="intro-skip"
         className="mt-4 text-[12px] text-ivory/45 hover:text-gold transition-colors"
       >
