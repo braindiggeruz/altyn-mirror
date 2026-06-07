@@ -6,6 +6,17 @@ export const RESULTS: Record<ResultKey, ResultData> = {
   mayatnik: {
     key: 'mayatnik',
     title: { ru: 'Маятник тепла', uz: 'Iliqlik mayatnigi' },
+    // Sprint 2 — one-line insight with pain, surfaces above passport.
+    insight: {
+      ru: 'Вы помните три минуты тепла громче, чем три недели тишины. Поэтому круг не разрывается.',
+      uz: 'Siz uch daqiqalik iliqlikni uch haftalik sukunatdan baland eslaysiz. Shuning uchun aylana uzilmaydi.',
+    },
+    // Sprint 2 — mini-scene "как это в жизни" — concrete 3–4-line scene that
+    // delivers the moment-of-recognition before the passport table.
+    miniScene: {
+      ru: 'Он не пишет три дня. Вы решаете: «всё, хватит». На четвёртый день — короткое «как ты?». И вы помните не три дня тишины, а это «как ты?». И отвечаете.',
+      uz: 'U uch kun yozmaydi. Siz "yetar, tamom" deysiz. To‘rtinchi kuni — qisqa "qalaysan?". Va siz uch kunlik sukunatni emas, mana shu "qalaysan?"ni eslaysiz. Va javob qaytarasiz.',
+    },
     description: {
       ru: 'В ответах чаще проявился сценарий «Маятник тепла». Здесь круг держится не на ровности, а на моментах, когда тепло возвращается и снова включает надежду. Важно посмотреть, где внимание начинает заменять ясность.',
       uz: 'Javoblarda ko‘proq «Iliqlik mayatnigi» stsenariysi namoyon bo‘ldi. Bu yerda aylana tekislik emas, balki iliqlik qaytib, umidni yana yoqib yuboradigan lahzalarga tayanadi.',
@@ -88,6 +99,14 @@ export const RESULTS: Record<ResultKey, ResultData> = {
   tuman: {
     key: 'tuman',
     title: { ru: 'Туман без ясности', uz: 'Aniqliksiz tuman' },
+    insight: {
+      ru: 'Вы не ищете его. Вы ищете определение того, что между вами происходит — и не можете его получить.',
+      uz: 'Siz uni qidirmaysiz. Siz orangizda nima sodir bo‘layotganining ta‘rifini qidirasiz — va uni ololmayapsiz.',
+    },
+    miniScene: {
+      ru: 'Он отвечает. Через 6 часов. Одной строкой. Вы перечитываете эту строку. Открываете чат пять раз за день. Не пишете. Думаете, было ли в его «ок» точка.',
+      uz: 'U javob beradi. 6 soatdan keyin. Bir qatorda. Siz bu qatorni qayta o‘qiysiz. Kuniga besh marta chatni ochasiz. Yozmaysiz. Uning "ok"da nuqta bormidi — o‘ylaysiz.',
+    },
     description: {
       ru: 'В ответах чаще проявился сценарий «Туман без ясности». Здесь напряжение рождается не из резкого конфликта, а из неопределённости. Связь как будто есть, но опоры у неё мало.',
       uz: 'Javoblarda ko‘proq «Aniqliksiz tuman» stsenariysi namoyon bo‘ldi. Bu yerda taranglik keskin to‘qnashuvdan emas, noaniqlikdan tug‘iladi.',
@@ -170,6 +189,14 @@ export const RESULTS: Record<ResultKey, ResultData> = {
   dogonyayu: {
     key: 'dogonyayu',
     title: { ru: 'Догоняю ответ', uz: 'Javob ortidan quvaman' },
+    insight: {
+      ru: 'Вы хотите ясности — но не от себя, а от него. Даже когда уже почти знаете ответ.',
+      uz: 'Siz aniqlikni xohlaysiz — lekin o‘zingizdan emas, undan. Javobni deyarli bilsangiz ham.',
+    },
+    miniScene: {
+      ru: 'Вы пишете длинное искреннее сообщение. Удаляете половину. Отправляете. Кладёте телефон. Ходите по комнате. Перечитываете отправленное. Через час злитесь, что написали первой.',
+      uz: 'Siz uzun, samimiy xabar yozasiz. Yarmini o‘chirasiz. Yuborasiz. Telefonni qo‘yasiz. Xona bo‘ylab yurasiz. Yuborilganini qayta o‘qiysiz. Bir soatdan keyin birinchi yozganingiz uchun jahlingiz chiqadi.',
+    },
     description: {
       ru: 'В ответах чаще проявился сценарий «Догоняю ответ». Когда история становится неясной, появляется желание быстро вернуть определённость. Круг может держаться на попытке получить ясность там, где её пока не дают.',
       uz: 'Javoblarda ko‘proq «Javob ortidan quvaman» stsenariysi namoyon bo‘ldi. Hikoya noaniq bo‘lganda, tezda aniqlikni qaytarish istagi paydo bo‘ladi.',
@@ -252,6 +279,14 @@ export const RESULTS: Record<ResultKey, ResultData> = {
   iskra: {
     key: 'iskra',
     title: { ru: 'Искра и пауза', uz: 'Uchqun va pauza' },
+    insight: {
+      ru: 'Вы держитесь не за него. Вы держитесь за ту версию себя, которой были в начале с ним.',
+      uz: 'Siz unga emas — u bilan boshida bo‘lgan o‘zingizning o‘sha versiyangizga yopishyapsiz.',
+    },
+    miniScene: {
+      ru: 'Первые две недели — будто фильм. Потом он «занят». Потом «устал». Потом один вечер — снова как тогда. Вы думаете: «вот, вернулось». А назавтра снова занят. И вы цепляетесь не за него — а за тот вечер.',
+      uz: 'Birinchi ikki hafta — go‘yo kino. Keyin u "band". Keyin "charchagan". Keyin bir oqshom — yana o‘sha paytdagidek. Siz "mana, qaytdi" deysiz. Ertasi kuni esa yana band. Va siz unga emas — o‘sha oqshomga yopishasiz.',
+    },
     description: {
       ru: 'В ответах чаще проявился сценарий «Искра и пауза». В начале много энергии, но затем темп меняется слишком резко. Круг может держаться на памяти о старте, а не на устойчивом движении дальше.',
       uz: 'Javoblarda ko‘proq «Uchqun va pauza» stsenariysi namoyon bo‘ldi. Boshida energiya ko‘p, lekin keyin temp juda keskin o‘zgaradi.',
@@ -334,6 +369,14 @@ export const RESULTS: Record<ResultKey, ResultData> = {
   dver: {
     key: 'dver',
     title: { ru: 'Закрытая дверь', uz: 'Yopiq eshik' },
+    insight: {
+      ru: 'Вы стоите у двери, которую он не открывает — и не уходите, потому что иногда из-под двери слышен голос.',
+      uz: 'U ochmayotgan eshik oldida turibsiz — va ketmayapsiz, chunki ba‘zan eshik ostidan ovoz eshitiladi.',
+    },
+    miniScene: {
+      ru: 'Вы знаете его расписание, работу, привычки. Но не знаете, что он чувствует к вам. На прямой вопрос — улыбка, шутка, тёплый жест. Не ответ. И вы остаётесь.',
+      uz: 'Siz uning jadvalini, ishini, odatlarini bilasiz. Lekin u sizga nima his qilishini bilmaysiz. To‘g‘ridan-to‘g‘ri savolga — tabassum, hazil, iliq imo-ishora. Javob emas. Va siz qolasiz.',
+    },
     description: {
       ru: 'В ответах чаще проявился сценарий «Закрытая дверь». Здесь может быть ощущение присутствия без настоящей ясности: человек рядом фрагментами, но важная часть истории остаётся закрытой.',
       uz: 'Javoblarda ko‘proq «Yopiq eshik» stsenariysi namoyon bo‘ldi. Bu yerda haqiqiy aniqliksiz mavjudlik tuyg‘usi bo‘lishi mumkin.',

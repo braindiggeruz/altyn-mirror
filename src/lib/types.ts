@@ -42,4 +42,9 @@ export type ResultData = {
   sessionPlan:   { ru: SessionPlanStep[]; uz: SessionPlanStep[] };
   // V6: 3-line plain summary surfaced under "Что уже видно по карте"
   whatsVisible: { ru: string[]; uz: string[] };
+  // Sprint 2 (CRO upgrade) — optional emotional anchors shown above the
+  // Scenario Passport so the user gets a moment-of-recognition before
+  // scrolling through the structured table.
+  insight?: { ru: string; uz: string };
+  miniScene?: { ru: string; uz: string };
 };

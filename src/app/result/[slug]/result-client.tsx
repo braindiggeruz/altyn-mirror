@@ -298,6 +298,42 @@ export default function ResultClient({ slug }: { slug: string }) {
           <OrbitMark className="w-[140px] h-[140px]" />
         </motion.div>
 
+        {/* Sprint 2 — Insight + Mini-scene blocks. Surface emotional
+            recognition BEFORE the structured passport. Renders only when the
+            scenario data provides these fields (optional). Pure presentational
+            — no Pixel/CAPI/notify side effects, no new analytics events. */}
+        {data.insight && (
+          <motion.section
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.25 }}
+            className="mt-6"
+            data-testid="result-insight"
+          >
+            <p className="text-[11px] uppercase tracking-[0.24em] text-gold/80">
+              {pick(ui.result.insightEyebrow, lang)}
+            </p>
+            <p className="serif mt-2 text-[19px] leading-[1.4] text-ivory italic">
+              {pick(data.insight, lang)}
+            </p>
+          </motion.section>
+        )}
+        {data.miniScene && (
+          <motion.section
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.32 }}
+            className="mt-5 card p-4 border-l-2 border-gold/40"
+            style={{ background: 'rgba(20,20,25,0.45)' }}
+            data-testid="result-mini-scene"
+          >
+            <p className="text-[10.5px] uppercase tracking-[0.22em] text-gold/70">
+              {pick(ui.result.miniSceneEyebrow, lang)}
+            </p>
+            <p className="mt-2 text-[15px] leading-[1.55] text-ivory/90">
+              {pick(data.miniScene, lang)}
+            </p>
+          </motion.section>
+        )}
+
         {/* ── Scenario Passport ── */}
         <motion.section
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.3 }}
@@ -479,6 +515,27 @@ export default function ResultClient({ slug }: { slug: string }) {
                 )}
               </motion.div>
             )}
+
+            {/* Sprint 2 + 3 — Bot-save secondary CTA, lifted from the bottom
+                of the page to right under the primary CTA. Self-segmentation
+                copy ("Не готовы прямо сейчас?") keeps hot users on primary.
+                Outline visual hierarchy — primary CTA still dominates.
+                Click behaviour reuses fireBotIntent (TelegramIntentClicked +
+                telegram_bot_intent notify + mirror ingest). Sprint 3 changes
+                the href to a direct t.me/altyntherapybot?start=am_<token>. */}
+            <div className="mt-5 pt-5 border-t border-ivory/10" data-testid="bot-save-cluster">
+              <p className="text-[12.5px] text-ivory/65 leading-[1.55] text-center" data-testid="bot-save-self-segment">
+                {pick(ui.result.botSaveSelfSegment, lang)}
+              </p>
+              <Link
+                data-testid="result-cta-bot"
+                href={botBridgeHref}
+                onClick={fireBotIntent}
+                className="btn-ghost text-[14px] w-full text-center mt-3"
+              >
+                {pick(ui.result.secondaryBotCta, lang)}
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -711,19 +768,10 @@ export default function ResultClient({ slug }: { slug: string }) {
           </ul>
         </motion.section>
 
-        {/* PR-2 — Bot fallback + save card moved below explanatory blocks.
-            Primary CTA already presented above; this section is for users
-            who want alternatives. Analytics unchanged. */}
+        {/* Sprint 2 — Bot-save CTA moved up next to primary CTA (see
+            bot-save-cluster above). What remains here is just the "save card
+            as image" action — secondary utility, intentionally low-key. */}
         <div className="mt-9 flex flex-col gap-3" data-testid="secondary-cta-cluster">
-          <Link
-            data-testid="result-cta-bot"
-            href={botBridgeHref}
-            onClick={fireBotIntent}
-            className="btn-ghost text-[14px] w-full text-center"
-          >
-            {pick(ui.result.secondaryBotCta, lang)}
-          </Link>
-
           <button
             data-testid="result-save-btn"
             onClick={onSave}
