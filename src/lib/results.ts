@@ -42,7 +42,15 @@ export const RESULTS: Record<ResultKey, ResultData> = {
       ru: 'Где именно редкое тепло становится сильнее фактов?',
       uz: 'Kamdan-kam iliqlik aynan qayerda faktlardan kuchliroq bo‘ladi?',
     },
-    cta: { ru: 'Разложить маятник в Telegram', uz: 'Mayatnikni Telegram’da tahlil qilish' },
+    cta: { ru: 'Узнать у Алтын, как разложить этот маятник →', uz: 'Bu mayatnikni Altyn bilan tahlil qilish →' },
+    whatRepeats: {
+      ru: 'Одна тёплая секунда снова становится сильнее трёх недель фактов.',
+      uz: 'Bir iliq soniya yana uch haftalik faktlardan kuchli bo‘ladi.',
+    },
+    altynLine: {
+      ru: '«Я хочу, чтобы после встречи у вас осталась не "что делать с ним", а "что делать с собой в этой точке".»',
+      uz: '«Uchrashuvdan keyin sizda "u bilan nima qilish" emas, "shu nuqtada o‘zim bilan nima qilish" qoladi degan istakdaman.»',
+    },
     bring: {
       ru: [
         'Один эпизод, после которого надежда вернулась сильнее всего',
@@ -132,7 +140,15 @@ export const RESULTS: Record<ResultKey, ResultData> = {
       ru: 'Где заканчиваются факты и начинается ожидание?',
       uz: 'Faktlar qayerda tugaydi va kutish qayerda boshlanadi?',
     },
-    cta: { ru: 'Разложить туман в Telegram', uz: 'Tumanni Telegram’da tahlil qilish' },
+    cta: { ru: 'Найти слово для этой точки с Алтын →', uz: 'Bu nuqta uchun so‘zni Altyn bilan topish →' },
+    whatRepeats: {
+      ru: 'Факты остаются, но названия для того, что между вами, — нет. И это держит сильнее самих фактов.',
+      uz: 'Faktlar qoladi, lekin orangizdagi narsaning nomi — yo‘q. Va bu faktlardan kuchliroq ushlab turadi.',
+    },
+    altynLine: {
+      ru: '«Туман не уходит от объяснений. Он уходит, когда у вашей точки появляется одно точное слово.»',
+      uz: '«Tuman tushuntirishlardan ketmaydi. U sizning nuqtangizga bitta aniq so‘z paydo bo‘lganida ketadi.»',
+    },
     bring: {
       ru: [
         'Три факта, которые точно есть, без дорисовки',
@@ -222,7 +238,15 @@ export const RESULTS: Record<ResultKey, ResultData> = {
       ru: 'Где контакт превращается в погоню за ответом?',
       uz: 'Aloqa qayerda javob ortidan quvishga aylanadi?',
     },
-    cta: { ru: 'Открыть личный маршрут', uz: 'Shaxsiy yo‘lni ochish' },
+    cta: { ru: 'Поговорить с Алтын о моём вопросе →', uz: 'Savolim haqida Altyn bilan gaplashish →' },
+    whatRepeats: {
+      ru: 'Каждый круг — это попытка получить от него то, что вы уже почти можете сказать себе сами.',
+      uz: 'Har bir aylana — bu o‘zingizga ayta olishingiz mumkin bo‘lgan narsani undan olishga urinish.',
+    },
+    altynLine: {
+      ru: '«Я не буду давать ответ. Мы посмотрим, какой ответ уже есть у вас — и почему вы пока не разрешаете себе его услышать.»',
+      uz: '«Men javob bermayman. Sizda qanday javob borligini va nima uchun uni o‘zingizga eshitishga ruxsat bermayotganingizni birga ko‘ramiz.»',
+    },
     bring: {
       ru: [
         'Вопрос, который чаще всего хочется задать',
@@ -312,7 +336,15 @@ export const RESULTS: Record<ResultKey, ResultData> = {
       ru: 'Что именно в начале стало внутренней точкой возврата?',
       uz: 'Boshlanishda aynan nima ichki qaytish nuqtasiga aylandi?',
     },
-    cta: { ru: 'Посмотреть сценарий глубже', uz: 'Stsenariyni chuqurroq ko‘rish' },
+    cta: { ru: 'Разложить искру и паузу с Алтын →', uz: 'Uchqun va pauzani Altyn bilan tahlil qilish →' },
+    whatRepeats: {
+      ru: 'Память о двух неделях яркого начала каждый раз сильнее текущих фактов.',
+      uz: 'Yorqin boshlanishning ikki haftalik xotirasi har safar joriy faktlardan kuchli bo‘ladi.',
+    },
+    altynLine: {
+      ru: '«Мы не будем "возвращать начало". Мы посмотрим, какая часть начала — это вы. Эту часть никто не забирает.»',
+      uz: '«Biz "boshlanishni qaytarish"ni qilmaymiz. Boshlanishning qaysi qismi sizning o‘zingiz ekanligini ko‘ramiz. Bu qismni hech kim olib qo‘ymaydi.»',
+    },
     bring: {
       ru: [
         'Картина того самого яркого начала — без редактуры',
@@ -402,7 +434,15 @@ export const RESULTS: Record<ResultKey, ResultData> = {
       ru: 'Где вы ждёте входа туда, где дверь пока не открывают?',
       uz: 'Eshik hali ochilmagan joyga kirishni qayerda kutyapsiz?',
     },
-    cta: { ru: 'Разложить сценарий с Алтын', uz: 'Stsenariyni ALTYN bilan tahlil qilish' },
+    cta: { ru: 'Спросить Алтын о моей двери →', uz: 'Eshigim haqida Altyn‘ga so‘rash →' },
+    whatRepeats: {
+      ru: 'Один фрагмент близости снова становится обещанием полной близости.',
+      uz: 'Yaqinlikning bir bo‘lagi yana to‘liq yaqinlikning va’dasi bo‘ladi.',
+    },
+    altynLine: {
+      ru: '«Я не буду уговаривать вас уйти. Мы посмотрим, что вы там услышали — и стоит ли этого ждать дальше у этой двери.»',
+      uz: '«Sizni ketishga ko‘ndirmayman. U yerda nimani eshitganingizni va shu eshik oldida buni yanada kutish kerakmi — birga ko‘ramiz.»',
+    },
     bring: {
       ru: [
         'Один пример, где близость пришла фрагментом',

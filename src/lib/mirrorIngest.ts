@@ -116,3 +116,76 @@ export function postMirrorEvent(input: MirrorEventInput): void {
     }
   } catch { /* swallow — analytics MUST NOT break UX */ }
 }
+
+/**
+ * Sprint 3 — Fire-and-forget POST /api/mirror-session.
+ *
+ * Writes the denormalized scenario snapshot to Cloudflare KV so the Telegram
+ * bot can resolve `/start am_<token>` to a personalised greeting WITHOUT
+ * re-running the quiz logic on the bot side. Spec lives in
+ * architecture/mirror-session-kv.md.
+ *
+ * Safety:
+ * - Best-effort. Never blocks UX. Never throws. Server is gated by env flag
+ *   `MIRROR_SESSION_KV_ENABLED=true`, so this is a no-op until flipped.
+ * - No PII. Only scenario data + token + non-identifying utm.
+ */
+export type MirrorSessionSnapshot = {
+  scenario_key: string;
+  scenario_title_ru: string;
+  scenario_title_uz: string;
+  secondary_key?: string;
+  secondary_title_ru?: string;
+  secondary_title_uz?: string;
+  nuance_title_ru?: string;
+  nuance_title_uz?: string;
+  key_question_ru: string;
+  key_question_uz: string;
+  what_repeats_ru?: string;
+  what_repeats_uz?: string;
+  mini_scene_ru?: string;
+  mini_scene_uz?: string;
+  altyn_line_ru?: string;
+  altyn_line_uz?: string;
+  prep_question_ru?: string;
+  prep_question_uz?: string;
+};
+
+export function postMirrorSession(input: MirrorSessionSnapshot): void {
+  if (!isClient()) return;
+  try {
+    const s = loadSession();
+    const token = s?.token && /^am_/.test(s.token) ? s.token : (s?.token ? `am_${s.token}` : undefined);
+    if (!token) return;
+    const payload = {
+      ...input,
+      am_token: token,
+      session_id: s?.session_id,
+      lang: s?.lang,
+      utm_source: s?.utm_source,
+      utm_campaign: s?.utm_campaign,
+      utm_content: s?.utm_content,
+      utm_term: s?.utm_term,
+      timestamp: new Date().toISOString(),
+    };
+    const body = JSON.stringify(payload);
+    let beaconOk = false;
+    try {
+      if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+        const blob = new Blob([body], { type: 'application/json' });
+        beaconOk = navigator.sendBeacon('/api/mirror-session', blob);
+      }
+    } catch { beaconOk = false; }
+    if (!beaconOk) {
+      try {
+        fetch('/api/mirror-session', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body,
+          keepalive: true,
+          credentials: 'omit',
+        }).catch(() => { /* swallow */ });
+      } catch { /* swallow */ }
+    }
+  } catch { /* swallow — Mirror UX must never hang on KV writes */ }
+}

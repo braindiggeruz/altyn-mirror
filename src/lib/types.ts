@@ -47,4 +47,12 @@ export type ResultData = {
   // scrolling through the structured table.
   insight?: { ru: string; uz: string };
   miniScene?: { ru: string; uz: string };
+  // Sprint 4 — Conversion Audit additions.
+  // whatRepeats: one-line "что именно повторяется в этом круге" lifted above
+  // primary CTA together with keyQuestion. Inner-voice tone, not academic.
+  whatRepeats?: { ru: string; uz: string };
+  // altynLine: first-person quote from Altyn rendered inside AltynCard on the
+  // result page. Tailored to this specific scenario so the trust bridge says
+  // something concrete, not generic.
+  altynLine?: { ru: string; uz: string };
 };

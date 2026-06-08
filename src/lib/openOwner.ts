@@ -49,28 +49,68 @@ export function buildOwnerMessage(args: {
   const secondary = (args.secondary && args.secondary.trim()) || '';
   const hasSecondary = secondary && secondary !== args.scenario;
 
-  // Sprint 1 — per-scenario short message. 3 lines, scenario name + key
-  // question + ask for 60-min review at $10. No UTM / no debug / no session
-  // id. Human tone. RU + UZ.
+  // Sprint 1 — per-scenario short message rewritten in her inner voice.
+  // 3 lines max. Begins with «Алтын» (not "Здравствуйте, Алтын" — warmer).
+  // Names Mirror + scenario. Key question voiced as inner monologue.
+  // Ends with an OPEN soft question, not a closed statement of intent.
+  // Drops the "(60 минут, 10$)" — that suppresses send-through.
   if (args.scenarioKey) {
-    if (args.lang === 'uz') {
-      const scenarioLine = hasSecondary
-        ? `Xarita: «${args.scenario}» (tus — «${secondary}»).`
-        : `Xarita: «${args.scenario}».`;
-      return [
-        'Assalomu alaykum, Altyn. ALTYN Mirror‘dan o‘tdim.',
-        `${scenarioLine} Asosiy savol: «${args.keyQuestion}».`,
-        'Buni shaxsiy 60 daqiqalik onlayn tahlilda (10$) yechmoqchiman.',
-      ].join('\n');
-    }
-    const scenarioLine = hasSecondary
-      ? `Карта: «${args.scenario}» (оттенок — «${secondary}»).`
-      : `Карта: «${args.scenario}».`;
-    return [
-      'Здравствуйте, Алтын. Прошла ALTYN Mirror.',
-      `${scenarioLine} Главный вопрос: «${args.keyQuestion}».`,
-      'Хочу разобрать это на личном 60-минутном онлайн-разборе (10$).',
-    ].join('\n');
+    const ru: Record<NonNullable<typeof args.scenarioKey>, string[]> = {
+      mayatnik: [
+        'Алтын, привет. Прошла Mirror — у меня «Маятник тепла».',
+        'Внутри вопрос: где одна тёплая секунда становится сильнее фактов.',
+        'Можем поговорить о моём круге?',
+      ],
+      dogonyayu: [
+        'Алтын, здравствуйте. Mirror показал «Догоняю ответ».',
+        'Тот вопрос, который я задаю каждый день — устала задавать.',
+        'Можно поговорить?',
+      ],
+      tuman: [
+        'Алтын, привет. Mirror — «Туман без ясности».',
+        'Никак не назову, что между нами происходит.',
+        'Хочу разложить.',
+      ],
+      iskra: [
+        'Алтын, здравствуйте. У меня «Искра и пауза».',
+        'Держусь не за него, а за себя из начала.',
+        'Поговорим?',
+      ],
+      dver: [
+        'Алтын, привет. Mirror — «Закрытая дверь».',
+        'Стою у одной двери слишком давно.',
+        'Хочу поговорить.',
+      ],
+    };
+    const uz: Record<NonNullable<typeof args.scenarioKey>, string[]> = {
+      mayatnik: [
+        'Altyn, salom. Mirror‘dan o‘tdim — menda «Iliqlik mayatnigi».',
+        'Ichimdagi savol: bir iliq soniya nima uchun faktlardan kuchli bo‘ladi.',
+        'Aylanam haqida gaplashishimiz mumkinmi?',
+      ],
+      dogonyayu: [
+        'Altyn, salom. Mirror «Javob ortidan quvaman» ko‘rsatdi.',
+        'Har kuni beradigan savolimni berishdan charchadim.',
+        'Suhbatlashishimiz mumkinmi?',
+      ],
+      tuman: [
+        'Altyn, salom. Mirror — «Aniqliksiz tuman».',
+        'Orangizda nima sodir bo‘layotganini nomlay olmayman.',
+        'Tahlil qilmoqchiman.',
+      ],
+      iskra: [
+        'Altyn, salom. Menda «Uchqun va pauza».',
+        'Men unga emas, boshlanishidagi o‘zimga yopishganman.',
+        'Gaplashamizmi?',
+      ],
+      dver: [
+        'Altyn, salom. Mirror — «Yopiq eshik».',
+        'Bitta eshik oldida juda uzoq turibman.',
+        'Gaplashishni xohlayman.',
+      ],
+    };
+    const lines = args.lang === 'uz' ? uz[args.scenarioKey] : ru[args.scenarioKey];
+    return lines.join('\n');
   }
 
   // Legacy generic template (backward compat for callers without scenarioKey).

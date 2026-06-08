@@ -7,16 +7,15 @@ import type { Lang } from '@/lib/types';
 import { OrbitMark } from './OrbitMark';
 
 export function MirrorIntro({ lang, onSkip }: { lang: Lang; onSkip: () => void }) {
-  // Sprint 1 — auto-skip the ritual screen after 1500ms so users don't lose
-  // an extra click between landing CTA and Q1. The "Войти в зеркало" button
-  // and "пропустить ритуал" link remain visible and clickable for users who
-  // arrive faster than the timer fires (both call onSkip in the same gesture).
-  // prefers-reduced-motion skips even faster (350ms).
+  // Sprint 4 (Audit E7) — auto-skip cut from 1500ms → 600ms. The intro stays
+  // as a 600ms cinematic beat between landing CTA and Q1 (orbit + one line
+  // of poetic text), but no longer eats a full 25% mobile attention budget.
+  // prefers-reduced-motion skips even faster (250ms).
   const fired = useRef(false);
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-    const delay = reduce ? 350 : 1500;
+    const delay = reduce ? 250 : 600;
     const t = window.setTimeout(() => {
       if (fired.current) return;
       fired.current = true;

@@ -9,7 +9,7 @@ import { RESULTS, RESULT_DISCLAIMER, RESULT_KEYS } from '@/lib/results';
 import { getStoredLang } from '@/lib/lang';
 import { track } from '@/lib/tracking';
 import { notify } from '@/lib/notify';
-import { postMirrorEvent } from '@/lib/mirrorIngest';
+import { postMirrorEvent, postMirrorSession } from '@/lib/mirrorIngest';
 import { sendCapi, mirrorCompletedEventId, shouldFireMirrorCompleted, readCapiUserHints } from '@/lib/capi';
 import { loadSession, saveSession } from '@/lib/storage';
 import type { SessionData } from '@/lib/storage';
@@ -19,6 +19,7 @@ import { OrbitMark } from '@/components/OrbitMark';
 import { ShareCard } from '@/components/ShareCard';
 import { StickyTelegramCta } from '@/components/StickyTelegramCta';
 import IgBrowserBanner from '@/components/IgBrowserBanner';
+import { AltynCard } from '@/components/AltynCard';
 
 const VALID = new Set<ResultKey>(RESULT_KEYS);
 
@@ -147,12 +148,14 @@ export default function ResultClient({ slug }: { slug: string }) {
   }, [session?.token]);
 
   // V6.1 — On-page copy-ready message + inline copy + Telegram-didn't-open helper
+  // Sprint 1 — pass scenarioKey so message uses per-scenario inner-voice template.
   const ownerMessage = useMemo(() => buildOwnerMessage({
     scenario: scenarioLabel,
     secondary: secondaryLabel,
     keyQuestion: keyQuestionLabel,
     lang,
-  }), [scenarioLabel, secondaryLabel, keyQuestionLabel, lang]);
+    scenarioKey: primary,
+  }), [scenarioLabel, secondaryLabel, keyQuestionLabel, lang, primary]);
 
   const [msgCopyState, setMsgCopyState] = useState<'idle' | 'ok' | 'fail'>('idle');
   const [linkCopyState, setLinkCopyState] = useState<'idle' | 'ok' | 'fail'>('idle');
@@ -253,6 +256,36 @@ export default function ResultClient({ slug }: { slug: string }) {
     io.observe(node);
     return () => io.disconnect();
   }, [primary]);
+
+  // Sprint 3 — write scenario snapshot to KV so /start am_<token> on the
+  // Telegram bot can resolve to a personalised greeting. Fire-and-forget.
+  // Gated server-side by MIRROR_SESSION_KV_ENABLED; runs once per token.
+  const sessionKvWrittenRef = useRef(false);
+  useEffect(() => {
+    if (sessionKvWrittenRef.current) return;
+    if (!session?.token || !data) return;
+    sessionKvWrittenRef.current = true;
+    try {
+      postMirrorSession({
+        scenario_key: primary,
+        scenario_title_ru: data.title.ru,
+        scenario_title_uz: data.title.uz,
+        secondary_key: session?.secondary_result || undefined,
+        secondary_title_ru: secondaryData?.title.ru,
+        secondary_title_uz: secondaryData?.title.uz,
+        key_question_ru: data.keyQuestion.ru,
+        key_question_uz: data.keyQuestion.uz,
+        what_repeats_ru: data.whatRepeats?.ru,
+        what_repeats_uz: data.whatRepeats?.uz,
+        mini_scene_ru: data.miniScene?.ru,
+        mini_scene_uz: data.miniScene?.uz,
+        altyn_line_ru: data.altynLine?.ru,
+        altyn_line_uz: data.altynLine?.uz,
+        prep_question_ru: data.prepQuestions?.ru?.[0],
+        prep_question_uz: data.prepQuestions?.uz?.[0],
+      });
+    } catch { /* swallow — UX must never hang on KV write */ }
+  }, [session?.token, data, primary, secondaryData?.title?.ru, secondaryData?.title?.uz, session?.secondary_result]);
 
   async function onSave() {
     if (savingState === 'saving') return;
@@ -434,6 +467,51 @@ export default function ResultClient({ slug }: { slug: string }) {
         </motion.section>
 
         {/* ──────────────────────────────────────────────────────────────
+            Sprint 4 — Main internal Question + "What repeats" lifted ABOVE
+            primary CTA. The user reads ONE serif sentence that names what
+            their circle does, plus one inner-voice question to bring to
+            Altyn. Pure presentational — no analytics side effects.
+            ────────────────────────────────────────────────────────────── */}
+        {(data.whatRepeats || data.keyQuestion) && (
+          <motion.section
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.42 }}
+            className="mt-7"
+            data-testid="main-question-lift"
+          >
+            {data.whatRepeats && (
+              <div className="mb-4">
+                <p className="text-[10.5px] uppercase tracking-[0.24em] text-gold/70">
+                  {pick(ui.result.whatRepeatsEyebrow, lang)}
+                </p>
+                <p className="serif mt-1.5 text-[18px] leading-[1.4] text-ivory/95">
+                  {pick(data.whatRepeats, lang)}
+                </p>
+              </div>
+            )}
+            <div>
+              <p className="text-[10.5px] uppercase tracking-[0.24em] text-gold/80">
+                {pick(ui.result.mainQuestionEyebrow, lang)}
+              </p>
+              <p className="serif mt-1.5 text-[20px] italic leading-[1.35] text-ivory">
+                «{keyQuestionLabel}»
+              </p>
+            </div>
+          </motion.section>
+        )}
+
+        {/* ──────────────────────────────────────────────────────────────
+            Sprint 4 — AltynCard. Trust bridge BEFORE primary CTA. The
+            single biggest multiplier in the audit. Voice = first-person
+            Altyn. Loads a per-scenario "scenarioLine" so each card says
+            something specific about this circle.
+            ────────────────────────────────────────────────────────────── */}
+        <AltynCard
+          lang={lang}
+          scenarioLine={data.altynLine ? pick(data.altynLine, lang) : ''}
+        />
+
+        {/* ──────────────────────────────────────────────────────────────
             PR-2 — Primary CTA cluster lifted above the explanatory blocks.
             The user can now act right after the Scenario Passport instead of
             scrolling through 12+ paragraphs. Analytics unchanged:
@@ -497,31 +575,11 @@ export default function ResultClient({ slug }: { slug: string }) {
           </section>
 
           <div className="mt-5 flex flex-col gap-2">
-            {/* PR-1 — 3-step instruction shown BEFORE the click. */}
-            <div
-              data-testid="cta-instruction-block"
-              className="mb-1 rounded-2xl border border-gold/20 bg-ink-900/40 px-4 py-3 text-left"
-            >
-              <p className="text-[11.5px] uppercase tracking-[0.18em] text-gold/75 mb-2">
-                {pick(ui.result.instructionTitle, lang)}
-              </p>
-              <ol className="space-y-1.5 text-[13px] text-ivory/80 leading-[1.45] list-none">
-                <li className="flex gap-2" data-testid="cta-instruction-step-1">
-                  <span className="text-gold/80 font-semibold tabular-nums shrink-0">1.</span>
-                  <span>{pick(ui.result.instructionStep1, lang)}</span>
-                </li>
-                <li className="flex gap-2" data-testid="cta-instruction-step-2">
-                  <span className="text-gold/80 font-semibold tabular-nums shrink-0">2.</span>
-                  <span>{pick(ui.result.instructionStep2, lang)}</span>
-                </li>
-                <li className="flex gap-2" data-testid="cta-instruction-step-3">
-                  <span className="text-gold/80 font-semibold tabular-nums shrink-0">3.</span>
-                  <span>{pick(ui.result.instructionStep3, lang)}</span>
-                </li>
-              </ol>
-            </div>
+            {/* Sprint 1 — 3-step instruction REMOVED (audit E1). Replaced by a
+                single short hint under the CTA. Less cognitive load before
+                the click means less pre-paste paralysis after it. */}
 
-            {/* V6.1 — One-click owner-direct primary CTA */}
+            {/* V6.1 — One-click owner-direct primary CTA, per-scenario copy */}
             <a
               data-testid="result-cta-altyn"
               href={OWNER_URL}
@@ -530,10 +588,14 @@ export default function ResultClient({ slug }: { slug: string }) {
               onClick={() => fireOwnerIntent('result_primary')}
               className="btn-gold text-[16px] w-full text-center"
             >
-              {pick(ui.result.primaryCta, lang)}
+              {pick(data.cta || ui.result.primaryCta, lang)}
             </a>
             <p className="text-[12.5px] text-ivory/55 leading-[1.5] text-center" data-testid="result-cta-hint">
               {pick(ui.result.primaryCtaHint, lang)}
+            </p>
+            {/* Sprint 4 — name the human on the other side of the chat. */}
+            <p className="text-[12px] text-gold/70 leading-[1.5] text-center" data-testid="result-cta-not-robot">
+              {pick(ui.result.primaryCtaNotRobot, lang)}
             </p>
 
             {showOpenHint && (
