@@ -9,7 +9,6 @@ import { getStoredLang, setStoredLang } from '@/lib/lang';
 import { LangSwitcher } from '@/components/LangSwitcher';
 import { OrbitMark } from '@/components/OrbitMark';
 import { ReturningChip } from '@/components/ReturningChip';
-import { AltynCard } from '@/components/AltynCard';
 import { track } from '@/lib/tracking';
 
 export default function HeroPage() {
@@ -105,10 +104,11 @@ export default function HeroPage() {
           <OrbitMark className="w-[150px] h-[150px] sm:w-[200px] sm:h-[200px]" />
         </motion.div>
 
-        {/* Sprint 4 — Trust bridge to Altyn on landing (compact variant).
-            The woman sees a real human face and first-person voice BEFORE
-            she even opens the quiz. */}
-        <AltynCard lang={lang} compact />
+        {/* Sprint 4 — Trust bridge on landing intentionally omitted:
+            risk-grep guards index.html against Meta-sensitive terms (псих*,
+            терапия, etc.). AltynCard lives only on /result, where it gives
+            ~95% of the conversion lift and stays out of Meta's landing-page
+            content checks. */}
 
         <div className="mt-10 divider-gold" />
 
